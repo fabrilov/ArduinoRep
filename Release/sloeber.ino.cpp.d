@@ -134,8 +134,8 @@ sloeber.ino.cpp.o: ../sloeber.ino.cpp \
  /home/fabrilov/sloeber/arduinoPlugin/packages/arduino/hardware/sam/1.6.10/cores/arduino/USB/USBAPI.h \
  /home/fabrilov/sloeber/arduinoPlugin/packages/arduino/hardware/sam/1.6.10/cores/arduino/RingBuffer.h \
  /home/fabrilov/sloeber/arduinoPlugin/packages/arduino/hardware/sam/1.6.10/cores/arduino/Stream.h \
- ../PseudoTimer.h ../PWMCOM_SimulEbox.h ../NewBridge.h ../Parametri.h \
- ../Dum.h ../simulebox.ino
+ ../PseudoTimer.h ../MysticDum.h ../NewBridge.h ../Parametri.h ../Dum.h \
+ ../simulebox.ino
 
 /home/fabrilov/sloeber/arduinoPlugin/packages/arduino/hardware/sam/1.6.10/cores/arduino/Arduino.h:
 
@@ -409,7 +409,7 @@ sloeber.ino.cpp.o: ../sloeber.ino.cpp \
 
 ../PseudoTimer.h:
 
-../PWMCOM_SimulEbox.h:
+../MysticDum.h:
 
 ../NewBridge.h:
 

@@ -1,10 +1,3 @@
-/*
-LBA
-
-Classe per la gestione di un unico dispositivo embedded che legge i dati dalla parte linux e dal lato embedded 
-*/
-//
-
 
 #include <Arduino.h>
 #include "NewBridge.h"
@@ -27,37 +20,24 @@ Classe per la gestione di un unico dispositivo embedded che legge i dati dalla p
 #define SIMUL_SENDLOGSH							"/evoplus/scripts/sendlog.sh"
 #define SIMUL_SENDDATATICS						"to_cs_usb.sh"							// Script per l'invio dati su CS. gli script sono relativi e si trovano in /evolpus/scripts 
 #define SIMUL_NOME_FILE_CS_TXT					"data_to_cs.txt"						// File che contiene i dati da inviare al CS
-#define SIMUL_NOME_FILE_TMP						"dati.tmp"								// File temporaneo che memorizza i dati per il sito locale
-#define SIMUL_NOME_FILE_DATI_TO_WEB				"data_to_cs.json"						// File definitivo dove sono memoriazzati i dati per il sito locale
+//#define SIMUL_NOME_FILE_TMP						"dati.tmp"								// File temporaneo che memorizza i dati per il sito locale
+//#define SIMUL_NOME_FILE_DATI_TO_WEB				"data_to_cs.json"						// File definitivo dove sono memoriazzati i dati per il sito locale
 #define SIMUL_MAX_CAR_TO_BRIDGE 250											// numero massimo di caratteri che possono arrivare dal Bridge
-#define SIMUL_TOTAL_N_OF_REG			21  // definizione grandezza del buffer dove sono memomorizzati i dati
-#define SIMUL_NOMECONFIGURAZIONE	   "SimulEbox"
+#define SIMUL_TOTAL_N_OF_REG	 8  // definizione grandezza del buffer dove sono memomorizzati i dati,  numero parametri da trattare
+#define SIMUL_NOMECONFIGURAZIONE	   "MysticBox"
 
 
-//definizione pin del dispositivo embedded
-
-#define SIMUL_DURATASTART 20000			// durata Apertura RELE in milli secondi
-#define SIMUL_RELE_PIN 60
-#define SIMUL_RELE_LED 51
-#define SIMUL_INVIO_PIN 50
-#define SIMUL_FINE_CORSA_APERTURA		54
-#define SIMUL_FINE_CORSA_CHIUSURA		55
+//inserire define dei pin da usare
 
 
-#define SIMUL_CANCELLO_APERTO	1
-#define SIMUL_CANCELLO_CHIUSO	0
-#define SIMUL_CANCELLO_IN_ERRORE      3
-#define SIMUL_CANCELLO_IN_MOVIMENTO   2
-#define SIMUL_TIMER_APERTURA		  2 * 60 *1000			// tempo di aperuta in millisecondi
 
-
-#ifndef PWMCOM_SIMULEBOX_h
-#define PWMCOM_SIMULEBOX_h
+#ifndef MysticDum_h
+#define MysticDum_h
 
 
 //#define PWMCOM_Macchinetta_Caffe_DEBUG true
 
-#ifdef PWMCOM_SIMULEBOX_h_DEBUG
+#ifdef MysticDum_h_DEBUG
 #define _DEB_PRINT(x)   SerialUSB.print(x);
 #define _DEB_PRINTLN(x) SerialUSB.println(x);
 #else
@@ -65,9 +45,9 @@ Classe per la gestione di un unico dispositivo embedded che legge i dati dalla p
 #define _DEB_PRINTLN(x)
 #endif
 
-//#define PWMCOM_SIMULEBOX_h_DEBUG_1 true
+//#define MysticDum_h_DEBUG_1 true
 
-#ifdef PWMCOM_SIMULEBOX_h_DEBUG_1
+#ifdef MysticDum_h_DEBUG_1
 #define _DEB_1_PRINT(x)   SerialUSB.print(x);
 #define _DEB_1_PRINTLN(x) SerialUSB.println(x);
 #else
@@ -75,8 +55,8 @@ Classe per la gestione di un unico dispositivo embedded che legge i dati dalla p
 #define _DEB_1_PRINTLN(x)
 #endif
 
-//#define PWMCOM_SIMULEBOX_h_INOUT
-#ifdef PWMCOM_SIMULEBOX_h_INOUT
+//#define MysticDum_h_INOUT
+#ifdef MysticDum_h_INOUT
 #define M_CAFFE_INOUT_PRINT(x)   SerialUSB.print(x);
 #define M_CAFFE_INOUT_PRINTLN(x) SerialUSB.println(x);
 #else
@@ -88,7 +68,10 @@ Classe per la gestione di un unico dispositivo embedded che legge i dati dalla p
 
 
 
-class PWMCOM_SimulEbox : public Dum
+
+
+
+class MysticDum : public Dum
 {
 
 private:
@@ -100,16 +83,15 @@ private:
 		Aggiungere parametri non richiede conosceli.
 	*/
 	String label_for_cs[SIMUL_TOTAL_N_OF_REG] PROGMEM = 
-	    {	"IngressoR","IngressoA","IngressoB","IngressoC","IngressoN","Iout 1", "Iout 2", "CorrentePompaA","CorrentePompaB", 
-			"TriggerCorrentePompaA", "TriggerCorrentePompaB",
-			"UpTime", "SampleRate","Reboot","Cicli","stato","ErrorePompaA","ErrorePompaB",
-			"TastoPompaA","TastoPompaB","UTC"
-	};
+	{"Switch1","Switch2","LDR","Temperature","Humidity",
+	 "UpTime", "SampleRate","Reboot"};
+
+
 
 public:
 
-	PWMCOM_SimulEbox();
-	virtual ~PWMCOM_SimulEbox();
+	MysticDum();
+	virtual ~MysticDum();
 
 	virtual void begin();
 	virtual bool aggiornaStato(); 						// legge tutti i registri definiti dallo slave

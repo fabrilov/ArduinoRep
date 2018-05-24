@@ -1,8 +1,8 @@
- #include "PWMCOM_SimulEbox.h"
+ #include "MysticDum.h"
 
 
 
-PWMCOM_SimulEbox::PWMCOM_SimulEbox()
+MysticDum::MysticDum()
 {
 
 	_numParametri = SIMUL_TOTAL_N_OF_REG;
@@ -25,13 +25,13 @@ PWMCOM_SimulEbox::PWMCOM_SimulEbox()
 }
 
 
-PWMCOM_SimulEbox::~PWMCOM_SimulEbox()
+MysticDum::~MysticDum()
 {
 
 }
 
 
-void PWMCOM_SimulEbox::begin() {
+void MysticDum::begin() {
 
 	String supp, valore;
 	String Seriale, Add, chiave, Type, _fileDati;
@@ -79,7 +79,7 @@ void PWMCOM_SimulEbox::begin() {
 }
 
 
-String PWMCOM_SimulEbox::processCommand(String message) {
+String MysticDum::processCommand(String message) {
 	M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.processCommnad()   -------------    ");
 
 	/* Richiesta inviata dal centro servizi:
@@ -172,7 +172,7 @@ String PWMCOM_SimulEbox::processCommand(String message) {
 	else return parameters[0] + DUM_SEPARATORE + "Invalid command";
 }
 
-bool PWMCOM_SimulEbox::aggiornaStato() {
+bool MysticDum::aggiornaStato() {
 
 	// lo scopo di questa funzione è leggere lo stato di tutti i sensori e metterli a disposizione
 	// legge posizione pwmcom
@@ -255,7 +255,7 @@ bool PWMCOM_SimulEbox::aggiornaStato() {
 	return true;
 }
 
-unsigned long int PWMCOM_SimulEbox::getSampleRate() {
+unsigned long int MysticDum::getSampleRate() {
 		//M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.getsamplerate() ---------------------");
 		unsigned long int value = 10000;
 		if (_parametri.getValue("SampleRate") == "1") value = 15000;
@@ -266,12 +266,12 @@ unsigned long int PWMCOM_SimulEbox::getSampleRate() {
 	}
 
 /*
-void PWMCOM_SimulEbox::aggiornaSito() {
+void MysticDum::aggiornaSito() {
 	//M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.aggiornaSito() ---------------------");
 	//M_CAFFE_INOUT_PRINTLN("Uscita Macchinetta caffe.aggiornaSito()");
 };
 */
-void PWMCOM_SimulEbox::sendDataToCs() {
+void MysticDum::sendDataToCs() {
 	M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.sendDataToCs() ---------------------");
 
 	String stringa, supp;
@@ -303,7 +303,7 @@ void PWMCOM_SimulEbox::sendDataToCs() {
 	}
 };
 
-void PWMCOM_SimulEbox::riceviMessaggi() {
+void MysticDum::riceviMessaggi() {
 		M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.riceviMessaggi()  -----------------");
 		String message = "";
 		String risposta;
@@ -330,7 +330,7 @@ void PWMCOM_SimulEbox::riceviMessaggi() {
 };
 
 
-String PWMCOM_SimulEbox::processMessage(String message) {
+String MysticDum::processMessage(String message) {
 	String parameters[2]{ "","" };
 	String risposta_2;
 	bool trovato;
@@ -388,7 +388,7 @@ String PWMCOM_SimulEbox::processMessage(String message) {
 
 }
 
-void PWMCOM_SimulEbox::generazioneStati()
+void MysticDum::generazioneStati()
 {
 	A = random(2); B = random(2); C = random(2);
 	N = random(2); R = random(2);
@@ -401,7 +401,7 @@ void PWMCOM_SimulEbox::generazioneStati()
 }
 
 
-void PWMCOM_SimulEbox::statoStop()
+void MysticDum::statoStop()
 {
 	A = 0; B = 0; C =0;
 	N = 0; R = 1;
@@ -410,7 +410,7 @@ void PWMCOM_SimulEbox::statoStop()
 
 
 }
-void PWMCOM_SimulEbox::inviaStati()
+void MysticDum::inviaStati()
 {
 	digitalWrite(_pinA, A); 	digitalWrite(_pinB, B); digitalWrite(_pinC, C); 
 	digitalWrite(_pinR, R); digitalWrite(_pinN, N);
@@ -425,7 +425,7 @@ void PWMCOM_SimulEbox::inviaStati()
 	}
 }
 
-void PWMCOM_SimulEbox::leggiCorrenti()
+void MysticDum::leggiCorrenti()
 {
 	int correnteA = 0, correnteB = 0;
 	int letturaA, letturaB;
