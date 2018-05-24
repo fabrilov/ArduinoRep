@@ -8,59 +8,16 @@
 #include "Dum.h"
 
 
-
-//
-//extern char _end;
-//extern "C" char *sbrk(int i);
-//char *ramstart=(char *)0x20070000;
-//char *ramend=(char *)0x20088000;
-//
-//
-//
-//String Dum::dynamicRamUsed(){
-//  char *heapend=sbrk(0);
-//  register char * stack_ptr asm ("sp");
-//  struct mallinfo mi=mallinfo();
-//  return String(mi.uordblks);
-//  }
-//  
-//String Dum::staticRamUsed(){
-//  char *heapend=sbrk(0);
-//  register char * stack_ptr asm ("sp");
-//  struct mallinfo mi=mallinfo();
-//  return String(&_end - ramstart);
-//  }
-//
-//String Dum::stackRamUsed() {
-//  char *heapend=sbrk(0);
-//  register char * stack_ptr asm ("sp");
-//  struct mallinfo mi=mallinfo();
-//  return String(ramend - stack_ptr);
-//  }
-//
-//String Dum::myGuessAtFreeMem() {
-//  char *heapend=sbrk(0);
-//  register char * stack_ptr asm ("sp");
-//  struct mallinfo mi=mallinfo();
-//  return String(stack_ptr - heapend + mi.fordblks);
-//  }
-  
-
 Dum::Dum(){
 /* lo scopo di questa funzione è verificare che ci sia tutto quello che serve per chiamare far funzionare questa classe
 
 Queste sono le strutture dati da attivare
 */
-
+//FLO
 _numParametri = 0;
 //_parametriCS.begin(label_for_cs,_numParametri);
 
-
-
-
 }
-
-
 
 
 void Dum::begin() {
@@ -71,14 +28,12 @@ void Dum::begin() {
 	_fileStorageParametri = FILESTORAGEPARAMETRI;
 	_parametriCS.begin(label_for_cs,_numParametri);
 
-
 	*/
   
 }
 
 Dum::~Dum(){
-  
-	
+
 }
 
 
@@ -94,14 +49,10 @@ void Dum::resetData(){
 }
 
 
-
  bool Dum::aggiornaStato() {
 
 	 // lo scopo di questa funzione Ã¨ leggere lo stato di tutti i sensori e metterli a disposizione
 	 // legge dati Dum e Dum
-
-
-
 
 	 /*  Esempio di uso di questa funzione
 
@@ -128,7 +79,7 @@ void Dum::resetData(){
 	 */
 
   _DEB_PRINTLN("Funzione da Definire nelle classi derivate");  
- 
+  return true;
 
 }
 
@@ -146,7 +97,7 @@ String Dum::dataToCS(String seriale) {
   String data = ""; 
   String supp;
   bool primo_record_inserito = false;
-  bool new_data = true;
+  //bool new_data = true;
   _DEB_PRINT("dentro dum::dataToCs con il seriale:  "); _DEB_PRINTLN(seriale);
   _DEB_PRINT("numero di paramentri da inviare: ");  _DEB_PRINTLN(_numParametri);
   if (_nomeConfigurazione =="") data = "{\"serial\":\"" + seriale + "\",\"param\":{";
@@ -196,7 +147,7 @@ Esempio del codcie da mettere qa:....
   valore = parameters[2];
   }
 */
-	
+return message;
 }
 
 int Dum::unsignet_to_int(uint16_t u){
@@ -229,7 +180,6 @@ Si deve usare questo script perchÃ¨ non funziona con p.run la redirezione dell
   
       String command= DUM_CATEGREPSCRIPS + cat + " " + grep ;
       String result="";
-      char c;
       Process p; 
       p.runShellCommand(command);
       while (p.available()>0) {
@@ -283,7 +233,6 @@ Se il file non c'Ã¨ viene creato
   char buf[nomeFile.length()+1] ;
   nomeFile.toCharArray(buf, nomeFile.length()+1);
   String supp;
-  char c;
   p.begin("sed");
   p.addParameter("-i");
   supp = "/:" + chiave + ":/d";
@@ -309,7 +258,6 @@ void Dum::setSampleRate(int sampleRate) {
 
 int Dum::stringToInt(String parametro)
 {
-	int valore;
 	
 	String valoreNumerico="";
 	for (size_t i = 0; i < parametro.length(); i++)

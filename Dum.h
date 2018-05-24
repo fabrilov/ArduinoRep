@@ -44,7 +44,7 @@
 class Dum {
   public:
     Dum();
-	~Dum(); 									// distruttore da impplentare
+	virtual ~Dum(); 									// distruttore da impplentare
 
 // funzioni Virtuale da implementare in ogni singolo DUM   
 

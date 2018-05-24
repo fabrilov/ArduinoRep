@@ -1,9 +1,4 @@
-/*
-LBA DICLAMER
-
-
-*/
-
+#include <Arduino.h>
 
 #ifndef PSEUDOTIMER_H
 #define PSEUDOTIMER_H
@@ -12,7 +7,6 @@ extern "C" {
   }
 
 
-#include <Arduino.h>
 class PseudoTimer {
 public:
   PseudoTimer();
@@ -33,9 +27,6 @@ private:
 	
 	
 };
-
-
-
 
 
 

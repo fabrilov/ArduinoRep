@@ -1,16 +1,7 @@
-/*
-  LBA
-
-  Classe per la gestione de tetto
-*/
-//
+#include <Arduino.h>
 
 #ifndef Parametri_H
 #define Parametri_H
-
-
-#include <Arduino.h>
-
 
 //#define PARAMETRI_DEBUG true
 
@@ -23,8 +14,12 @@
 #endif
 
 
+
 class Parametri {
 public:
+   Parametri();
+   ~Parametri();
+
    int setValue(String parametro,String valore);
    int setValue(String parametro, long valore);
    int setValueWithDoubleQuote(String parametro, String valore);
@@ -33,9 +28,8 @@ public:
    String getValueIJson(int i);
    int getOrdinaleParametro(String parametro);
    void resetData();
-   Parametri();
-   void begin( const String* label_for_cs,int nParametri);
-   ~Parametri(); 
+   void begin(const String* label_for_cs, int nParametri);
+
 private:
    int _nParametri;
    const String * _label_for_cs;

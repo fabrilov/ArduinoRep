@@ -118,7 +118,7 @@ class ConsoleClass : public Stream {
     ConsoleClass();
     // Constructor with a user provided BridgeClass instance
     ConsoleClass(BridgeClass &_b);
-    ~ConsoleClass();
+    virtual ~ConsoleClass();
 
     void begin();
     void end();
@@ -168,7 +168,7 @@ class File : public Stream {
   public:
     File(BridgeClass &b = Bridge);
     File(const char *_filename, uint8_t _mode, BridgeClass &b = Bridge);
-    ~File();
+    virtual ~File();
 
     virtual size_t write(uint8_t);
     virtual size_t write(const uint8_t *buf, size_t size);
@@ -274,8 +274,8 @@ class Process : public Stream {
   public:
     // Constructor with a user provided BridgeClass instance
     Process(BridgeClass &_b = Bridge) :
-      bridge(_b), started(false), buffered(0), readPos(0) { }
-    ~Process();
+      bridge(_b), started(false), buffered(0), readPos(0),cmdline(),handle() { }
+    virtual ~Process();
 
     void begin(const String &command);
     void addParameter(const String &param);
@@ -458,6 +458,8 @@ obtain a copy.
     @param uint8_t a (0x00..0xFF)
     @return calculated CRC (0x0000..0xFFFF)
 */
+
+/*
 static uint16_t crc16_update(uint16_t crc, uint8_t a)
 {
   int i;
@@ -474,7 +476,7 @@ static uint16_t crc16_update(uint16_t crc, uint8_t a)
   return crc;
 }
 
-
+*/
 
 #endif /* _UTIL_CRC16_H_ */
 

@@ -22,7 +22,7 @@ Classe per la gestione di un unico dispositivo embedded che legge i dati dalla p
 
 #define SIMUL_FILESTORAGEPARAMETRI				"/evoplus/storageConfiguration.txt"
 #define SIMUL_FILESTORAGEPARAMETRIRETE			"/var/tmp/dboxInfo.txt"
-#define SIMUL_IPSCRIPT							"/evoplus/scripts/copyInfo.sh"          // non usato
+//#define SIMUL_IPSCRIPT							"/evoplus/scripts/copyInfo.sh"          // non usato
 #define SIMUL_PERCORSOCONFIGURAZIONE			"/evoplus/configurazione/pwmCom_1_0"
 #define SIMUL_SENDLOGSH							"/evoplus/scripts/sendlog.sh"
 #define SIMUL_SENDDATATICS						"to_cs_usb.sh"							// Script per l'invio dati su CS. gli script sono relativi e si trovano in /evolpus/scripts 
@@ -116,7 +116,7 @@ public:
 	virtual String processCommand(String);				// elabora e risponde ad un comando del DAB CS o del sito web
 	unsigned long int getSampleRate();					// funzione per prelevare il sample rate in miilisecondi
 	String leggiParametroStringSuFile(String Parametro);            // Funzione per leggere il parametro Stringa sul file system linux
-	void aggiornaSito();								// prepara i dati e li invia la sito o alla APP
+	//void aggiornaSito();								// prepara i dati e li invia la sito o alla APP
 	void sendDataToCs();								// prepara i dati e li invia al centro servizi
 	void riceviMessaggi();								// riceve i messaggi dal centro servizzi li passa a processMessage
 	String processMessage(String message);				// Risponde alle richieste base: inventory, setparam, se riguardano un altro dum smista la richiesta al dum corretto

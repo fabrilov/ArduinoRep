@@ -4,17 +4,13 @@
 
 PWMCOM_SimulEbox::PWMCOM_SimulEbox()
 {
-	// Inizializzazione PIN
 
 	_numParametri = SIMUL_TOTAL_N_OF_REG;
 	_fileStorageParametri = SIMUL_FILESTORAGEPARAMETRI;
-
 	A=0, B=0, C=0, R=0, N=0, Iout1=0, Iout2=0, TastoPompaA=0, TastoPompaB=0;
 	UpTime=0, _correnteA=0, _correnteB=0, _TriggerCorrentePompaA=0, _TriggerCorrentePompaB=0;
 	cicli=0,stato=0;
-
 	pinMode(_pinA, OUTPUT); pinMode(_pinB, OUTPUT); pinMode(_pinC, OUTPUT); pinMode(_pinR, OUTPUT); pinMode(_pinN, OUTPUT);
-
 	pinMode(_pinOutI1, OUTPUT); pinMode(_pinOutI2, OUTPUT);
 	pinMode(_pinTastoPompaA, OUTPUT); pinMode(_pinTastoPompaB, OUTPUT);
 	pinMode(_pinCorrentePompaA, INPUT);
@@ -24,16 +20,14 @@ PWMCOM_SimulEbox::PWMCOM_SimulEbox()
 	_TriggerCorrentePompaA = 30;
 	_TriggerCorrentePompaB = 30;
 	_fileStorageParametriRete = SIMUL_FILESTORAGEPARAMETRIRETE;
-//	M_CAFFE_INOUT_PRINTLN("Uscita Macchinetta caffe.begin()");
 	_connectedToBridge = false;
-	//analogReadResolution(12);
 	cicli = 0;
 }
 
 
 PWMCOM_SimulEbox::~PWMCOM_SimulEbox()
 {
-	
+
 }
 
 
@@ -41,24 +35,19 @@ void PWMCOM_SimulEbox::begin() {
 
 	String supp, valore;
 	String Seriale, Add, chiave, Type, _fileDati;
-	Process p, ipResolv;
+	Process p;
+
 	randomSeed(analogRead(0));
+
 	//  inizializzazione parametri
 	_parametri.begin(label_for_cs, _numParametri);
 	_fileStorageParametri = SIMUL_FILESTORAGEPARAMETRI;
 	
-	// inizzializzazione Rele;
-		// Inizializzazione Bridge
+	// Inizializzazione Bridge
 	Bridge.begin(250000);
 	FileSystem.begin();
 	Mailbox.begin();
 	//watchdogReset();
-
-	// inizializzazione parametri da leggere
-
-
-	//ipResolv.runShellCommandAsynchronously(MC_IPSCRIPT);
-	//ipResolv.setTimeout(2000);
 
 	// lettura di tutti i dati dal file storage
 	p.begin("cat");
@@ -73,22 +62,20 @@ void PWMCOM_SimulEbox::begin() {
 	//	
 	//}
 	//_DEB_1_PRINT("Stampa Storageconfiguration:  ") _DEB_1_PRINTLN(_fileDati);;
-
 	
-
 	_parametri.setValue("UpTime", 0);
 
 	//_invioDatiFast.setPeriod(SIMUL_INVIODATIFAST);
 	_parametri.setValue("SampleRate", "0");
 
-	_seriale = getValueFromKey(_fileDati, "DUM21@Serial");
+	//_seriale = getValueFromKey(_fileDati, "DUM21@Serial");
+	_seriale="PRZQU-U03I0-QZV9D-ZLDTW-RQQU1-PWIU111";
+
 	setSerial(_seriale);
 	setNameConf(SIMUL_NOMECONFIGURAZIONE);
-	
 	_TriggerCorrentePompaA = getValueFromKey(_fileDati, "TriggerCorrentePompaA").toInt();
 	_TriggerCorrentePompaB = getValueFromKey(_fileDati, "TriggerCorrentePompaB").toInt();
 	aggiornaStato();
-	//M_CAFFE_INOUT_PRINTLN("Uscita Macchinetta caffe.begin()");
 }
 
 
@@ -176,21 +163,13 @@ String PWMCOM_SimulEbox::processCommand(String message) {
 		};
 
 
-/*++++++++++++++++++++++++++++++++  Reeboot  ++++++++++++++++++++++++++++++++++++++*/
+/*++++++++++++++++++++++++++++++++  Reboot  ++++++++++++++++++++++++++++++++++++++*/
 		if (parametro == "Reboot") {
 			while (1) { ;; }
 		}
-
-
-
 		return parameters[0] + DUM_SEPARATORE + "Invalid param";
 	}
-
-	
-	
 	else return parameters[0] + DUM_SEPARATORE + "Invalid command";
-
-
 }
 
 bool PWMCOM_SimulEbox::aggiornaStato() {
@@ -274,11 +253,7 @@ bool PWMCOM_SimulEbox::aggiornaStato() {
 	_parametri.setValue("TriggerCorrentePompaA", _TriggerCorrentePompaA);
 	cicli++;
 	return true;
-
-
-
 }
-
 
 unsigned long int PWMCOM_SimulEbox::getSampleRate() {
 		//M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.getsamplerate() ---------------------");
@@ -290,13 +265,12 @@ unsigned long int PWMCOM_SimulEbox::getSampleRate() {
 		return value;
 	}
 
-
-
-
+/*
 void PWMCOM_SimulEbox::aggiornaSito() {
 	//M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.aggiornaSito() ---------------------");
 	//M_CAFFE_INOUT_PRINTLN("Uscita Macchinetta caffe.aggiornaSito()");
 };
+*/
 void PWMCOM_SimulEbox::sendDataToCs() {
 	M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.sendDataToCs() ---------------------");
 
@@ -314,7 +288,6 @@ void PWMCOM_SimulEbox::sendDataToCs() {
 		dataFile.print(stringa);
 		dataFile.close();
 		
-		
 		Process invio_cs;
 		supp = SIMUL_SENDDATATICS;
 		invio_cs.begin(supp);
@@ -323,22 +296,17 @@ void PWMCOM_SimulEbox::sendDataToCs() {
 		for (int i = 0; i < 20; i++) {
 			if (invio_cs.running()) {
 				delay(200);
-
 			}
 			else break;
-
 		}
-
-	
 		M_CAFFE_INOUT_PRINTLN("Uscita Macchinetta caffe.sendDataToCs()");
 	}
 };
+
 void PWMCOM_SimulEbox::riceviMessaggi() {
 		M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.riceviMessaggi()  -----------------");
 		String message = "";
 		String risposta;
-	
-
 			if (Mailbox.messageAvailable() > 0)
 			{
 				// legge il messaggio scritto dal bridge e restituisce il risultato. 

@@ -4,6 +4,7 @@
 Parametri::Parametri(){
   _label_for_cs = NULL;
   _value_for_cs = NULL;
+  _nParametri=0;
 
 };
 
@@ -63,12 +64,12 @@ if ((_label_for_cs != NULL) && (_value_for_cs != NULL)) {
 }
 
 String Parametri::getValueIJson(int i){
-if ((_label_for_cs != NULL) && (_value_for_cs != NULL)) {  
-  String data= "";
-  if (((i >= 0) && (i < _nParametri)) && ( _label_for_cs[i] != "") && (_value_for_cs[i] != ""))
-      data = "\"" + _label_for_cs[i] + "\":" + _value_for_cs[i];
-  return data;
- }
+	String data= "";
+	if ((_label_for_cs != NULL) && (_value_for_cs != NULL)) {
+		if (((i >= 0) && (i < _nParametri)) && ( _label_for_cs[i] != "") && (_value_for_cs[i] != ""))
+			data = "\"" + _label_for_cs[i] + "\":" + _value_for_cs[i];
+  	   }
+	return data;
 }  
   
 
@@ -96,7 +97,7 @@ int Parametri::setValueAutoQuote(String parametro, String valore)
 	valoreTrimmato.trim();
 
 	if (String(valoreTrimmato.toDouble())==valoreTrimmato) return setValue(parametro,valoreTrimmato);
-	else setValueWithDoubleQuote(parametro, valoreTrimmato);
+	else return setValueWithDoubleQuote(parametro, valoreTrimmato);
 
 }
 
