@@ -4,18 +4,17 @@
 
 PWMCOM_SimulEbox::PWMCOM_SimulEbox()
 {
-//	M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.begin()   -------------    ");
-
-	
-
-	// Inizzialiddazione PIN
-
-
+	// Inizializzazione PIN
 
 	_numParametri = SIMUL_TOTAL_N_OF_REG;
 	_fileStorageParametri = SIMUL_FILESTORAGEPARAMETRI;
 
+	A=0, B=0, C=0, R=0, N=0, Iout1=0, Iout2=0, TastoPompaA=0, TastoPompaB=0;
+	UpTime=0, _correnteA=0, _correnteB=0, _TriggerCorrentePompaA=0, _TriggerCorrentePompaB=0;
+	cicli=0,stato=0;
+
 	pinMode(_pinA, OUTPUT); pinMode(_pinB, OUTPUT); pinMode(_pinC, OUTPUT); pinMode(_pinR, OUTPUT); pinMode(_pinN, OUTPUT);
+
 	pinMode(_pinOutI1, OUTPUT); pinMode(_pinOutI2, OUTPUT);
 	pinMode(_pinTastoPompaA, OUTPUT); pinMode(_pinTastoPompaB, OUTPUT);
 	pinMode(_pinCorrentePompaA, INPUT);
@@ -39,16 +38,10 @@ PWMCOM_SimulEbox::~PWMCOM_SimulEbox()
 
 
 void PWMCOM_SimulEbox::begin() {
-	// M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.begin()   -------------    ");
-	int inizio, G, H;
-	inizio = millis();
 
 	String supp, valore;
 	String Seriale, Add, chiave, Type, _fileDati;
 	Process p, ipResolv;
-	char c;
-	uint8_t  result ;
-	int j;
 	randomSeed(analogRead(0));
 	//  inizializzazione parametri
 	_parametri.begin(label_for_cs, _numParametri);
@@ -84,12 +77,7 @@ void PWMCOM_SimulEbox::begin() {
 	
 
 	_parametri.setValue("UpTime", 0);
-	G = millis() - inizio;
-	int ini = millis();
 
-	
-
-	
 	//_invioDatiFast.setPeriod(SIMUL_INVIODATIFAST);
 	_parametri.setValue("SampleRate", "0");
 
@@ -125,7 +113,7 @@ String PWMCOM_SimulEbox::processCommand(String message) {
 	*/
 
 	String  valore, risposta, parametro;
-	int result; int j, i = 0;
+	int i = 0;
 	String parameters[SIMUL_MAX_PARAMETERS_FROM_CS];
 
 
@@ -216,8 +204,6 @@ bool PWMCOM_SimulEbox::aggiornaStato() {
 	M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.aggiornastato()   -------------    ");
 
 	Process p;
-	char c;
-	long timeA, timeB, timeC, timeD, timeE, timeF, timeG, dueFreeRam;
 	String supp, result, chiave, valore;
 	unsigned long now = millis();
 	_errorePompaA = false;
@@ -307,7 +293,7 @@ unsigned long int PWMCOM_SimulEbox::getSampleRate() {
 
 
 
-void PWMCOM_SimulEbox::aggionrnaSito() {
+void PWMCOM_SimulEbox::aggiornaSito() {
 	//M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.aggiornaSito() ---------------------");
 	//M_CAFFE_INOUT_PRINTLN("Uscita Macchinetta caffe.aggiornaSito()");
 };
@@ -315,11 +301,6 @@ void PWMCOM_SimulEbox::sendDataToCs() {
 	M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.sendDataToCs() ---------------------");
 
 	String stringa, supp;
-	long inizio, ora;
-	inizio = millis();
-	ora = millis();
-	int i = 0;
-	ora = millis() - inizio;
 	aggiornaStato();
 	if (_connectedToBridge) {
 		File dataFile = FileSystem.open(SIMUL_NOME_FILE_CS_TXT	, FILE_WRITE);
@@ -333,7 +314,6 @@ void PWMCOM_SimulEbox::sendDataToCs() {
 		dataFile.print(stringa);
 		dataFile.close();
 		
-		ora = millis() - inizio;
 		
 		Process invio_cs;
 		supp = SIMUL_SENDDATATICS;
@@ -349,7 +329,6 @@ void PWMCOM_SimulEbox::sendDataToCs() {
 
 		}
 
-		ora = millis() - inizio;
 	
 		M_CAFFE_INOUT_PRINTLN("Uscita Macchinetta caffe.sendDataToCs()");
 	}
@@ -386,7 +365,6 @@ void PWMCOM_SimulEbox::riceviMessaggi() {
 String PWMCOM_SimulEbox::processMessage(String message) {
 	String parameters[2]{ "","" };
 	String risposta_2;
-	int i;
 	bool trovato;
 	M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.processMessage()  -----------------");
 	//_DEB_PRINT("Comando ricevuto dal lato linux (dentro process_message: "); _DEB_PRINTLN(message);
@@ -409,7 +387,6 @@ String PWMCOM_SimulEbox::processMessage(String message) {
 
 
 	// fino a 2 per separare ID_richiesta/ID_device/ 
-	i = 0;
 	parameters[0] = message.substring(0, message.indexOf('/'));
 	message = message.substring(message.indexOf('/') + 1);
 	parameters[1] = message.substring(0, message.indexOf('/'));
@@ -439,7 +416,7 @@ String PWMCOM_SimulEbox::processMessage(String message) {
 		return parameters[0] + DUM_SEPARATORE + parameters[1] + DUM_SEPARATORE + this->processCommand(message);
 	}
 	if (not trovato) return  parameters[0] + DUM_SEPARATORE + parameters[1] + DUM_SEPARATORE + "BAD DEVICE";
-
+	return "no_risposta_2";
 
 }
 
@@ -483,7 +460,6 @@ void PWMCOM_SimulEbox::inviaStati()
 void PWMCOM_SimulEbox::leggiCorrenti()
 {
 	int correnteA = 0, correnteB = 0;
-	double fattoreDiCorrezione = 0.01;
 	int letturaA, letturaB;
 	/*int mezzaDinamica = 4096 / 2;
 	for (int i = 0; i < 100; i++) {
