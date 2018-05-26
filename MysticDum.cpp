@@ -40,6 +40,8 @@ MysticDum::~MysticDum()
 
 }
 
+//nel begin si inizializzano le strutture: creo variabili di supporto, leggo da filesystem
+//quei parametri che poi me serviranno nelle successive operazioni
 
 void MysticDum::begin() {
 	//inizializzo sensore temperatura
@@ -61,7 +63,7 @@ void MysticDum::begin() {
 	Mailbox.begin();
 	//watchdogReset();
 
-	// lettura di tutti i dati dal file storage
+	// lettura di tutti i dati dal filesystem
 	p.begin("cat");
 	p.addParameter(_fileStorageParametri);
 	//watchdogReset();
@@ -75,25 +77,29 @@ void MysticDum::begin() {
 	//}
 	//_DEB_1_PRINT("Stampa Storageconfiguration:  ") _DEB_1_PRINTLN(_fileDati);;
 	
-	_parametri.setValue("UpTime", 0);
-
-	//_invioDatiFast.setPeriod(SIMUL_INVIODATIFAST);
-	_parametri.setValue("SampleRate", "0");
 
 	//FIX ME: FLO: inserisco seriale Hardcoded per velocità
 	//_seriale = getValueFromKey(_fileDati, "DUM21@Serial");
 	_seriale="PRZQU-U03I0-QZV9D-ZLDTW-RQQU1-PWIU111";
-
 	setSerial(_seriale);
 	setNameConf(SIMUL_NOMECONFIGURAZIONE);
+
+	_parametri.setValue("UpTime", 0);
+	//_invioDatiFast.setPeriod(SIMUL_INVIODATIFAST);
+	_parametri.setValue("SampleRate", "0");
+
+	//legge da filesystem il valore del parametro, lo usa anche come archiviazione della soglia stessa
 	_TriggerCorrentePompaA = getValueFromKey(_fileDati, "TriggerCorrentePompaA").toInt();
 	_TriggerCorrentePompaB = getValueFromKey(_fileDati, "TriggerCorrentePompaB").toInt();
 	aggiornaStato();
 }
 
 
+
+
+//riceve e parsa dal centro servizi i comandi per poi fare le relative operazioni
 String MysticDum::processCommand(String message) {
-	M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.processCommnad()   -------------    ");
+	M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.processCommnad()-------------    ");
 
 	/* Richiesta inviata dal centro servizi:
 
@@ -104,40 +110,40 @@ String MysticDum::processCommand(String message) {
 	Command/parametro_1/parametro_2/../parametro_n
 
 	La risposta verso il centro servizi e:
-	ID_richiesta/ID_device/risposa/parametro_1/parametro_2/../parametro_n
+	ID_richiesta/ID_device/risposta/parametro_1/parametro_2/../parametro_n
 
 	in questa libreria vengono elaborate le risposte in questo modo:
 	risposta: comando (lo stesso ricevuto)
 	Lista di valori che rappresntano la riuscita dell'operazione.
-
 	*/
 
 	String  valore, risposta, parametro;
-	int i = 0;
-	String parameters[SIMUL_MAX_PARAMETERS_FROM_CS];
-
-
-	// parser che prende la stringa di comando e la posiziona su un array
+	String parameters[SIMUL_MAX_PARAMETERS_FROM_CS]; //array contenente i parametri che possono arrivare dal CS
 	for (int j = 0; j < SIMUL_MAX_PARAMETERS_FROM_CS; j++) {
 		parameters[j] = "";
 	}
 	// _DEB_PRINT("Comando ricevuto dal lato linux: "); _DEB_PRINTLN(message);
 
+	// parser che prende la stringa di comando e la posiziona su un array
+	//indexOf() method gives you the ability to search for the first instance of a particular character value in a String
+	//substring() with only one parameter looks for a given substring from the position given to the end of the string
+	int i = 0;
 	while ((message.indexOf('/') > 0) || (i < SIMUL_MAX_PARAMETERS_FROM_CS - 1)) {
-		parameters[i] = message.substring(0, message.indexOf('/'));
-		message = message.substring(message.indexOf('/') + 1);
+		parameters[i] = message.substring(0, message.indexOf('/')); //popolo array
+		message = message.substring(message.indexOf('/') + 1); // trimmo la coda messaggi del parametro+sepatore e ciclo
 		i++;
 	}
+	parameters[i] = message; //ultima occorrenza
 
-	parameters[i] = message;
+
 	risposta = "InvalidCommand";
-
+// cerco una logica: comando->parametro,valore il  coamndo è il primo parsato e inserito nell'array, seguono parametro e valore
 	if (parameters[0] == "SetParam") {
 		_invioDatiFast.start();
 		parametro = parameters[1];
 		valore = parameters[2];
 
-/*------------------------- SampleRate --------------------------------------------*/
+		/*------------------------- SampleRate --------------------------------------------*/
 		if (parametro == "SampleRate") {
 			risposta = valore;
 			_parametri.setValue(parametro, valore);
@@ -148,9 +154,7 @@ String MysticDum::processCommand(String message) {
 			return parameters[0] + DUM_SEPARATORE + parameters[1] + DUM_SEPARATORE + risposta;
 		};
 
-		
-
-	   /*------------------------- TriggerCorrentePompaA --------------------------------------------*/
+		/*------------------------- TriggerCorrentePompaA --------------------------------------------*/
 		if (parametro == "TriggerCorrentePompaA") {
 				risposta = valore;
 				_parametri.setValue(parametro, valore);
@@ -188,10 +192,8 @@ String MysticDum::processCommand(String message) {
 bool MysticDum::aggiornaStato() {
 
 	// lo scopo di questa funzione è leggere lo stato di tutti i sensori e metterli a disposizione
-	// legge posizione pwmcom
-	// temperatura, umidità
-	// posizione da sensore
-	// posizione da n° di step
+	// legge posizione pwmcom es 	// temperatura, umidità, etc
+
 
 	M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.aggiornastato()   -------------    ");
 
@@ -201,29 +203,7 @@ bool MysticDum::aggiornaStato() {
 	_errorePompaA = false;
 	_errorePompaB = false;
 
-
 	_parametri.setValue("UpTime", ( now / 1000));
-	
-	// Il sample rate deve essere sempre lo stesso
-	//if (_invioDatiFast.test()) _parametri.setValue("SampleRate", "0");
-
-	//// Parametri di rete numeri interi
-	//p.begin("cat");
-	//p.addParameter(_fileStorageParametriRete);
-	//watchdogReset();
-	//timeA = millis() - now;
-	//p.runAsynchronously();
-	//result = "";
-	//for (int i = 0; i < 20; i++) {
-
-	//	if (p.running()) { delay(100); }
-	//	else {
-	//		while (p.available()) {
-	//			result += (char)p.read();
-	//		}
-	//		break;
-	//	}
-	//}
 	
 	stato = (cicli) % 4;
 	//watchdogReset();
