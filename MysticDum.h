@@ -87,7 +87,7 @@ private:
 		Aggiungere parametri non richiede conosceli.
 	*/
 	String label_for_cs[SIMUL_TOTAL_N_OF_REG] PROGMEM = 
-	{"Switch1","Switch2","Luminosity","Temperature","Humidity",
+	{"Switch1","Luminosity","Temperature","Humidity","LuminosityThreshold",
 	 "UpTime", "SampleRate","Reboot"};
 
 
@@ -113,20 +113,24 @@ protected:
 
 private:
 	void generaValoriRandom();						// Stato Casuale
-	void statoStop();
+	//void statoStop();
 	void inviaStati();
-	void leggiCorrenti();
+	//void leggiCorrenti();
 	void getTemperature();
 	void getHumidity();
 	void getLuminosity();
 
-	/*int _pinA, _pinB, _pinC, _pinR, _pinN, _pinOutI1, _pinOutI2, _pinCorrentePompaA, _pinCorrentePompaB;
-	int _pinTastoPompaA, _pinTastoPompaB;*/
 	float _humidity;  //Stores humidity value
 	float _temperature; //Stores temperature value
 	int _luminosity; //Stores ldr luminosity value
+	int _luminosityThreshold; //soglia di luminosità impostabile che sarà scritta su FS
+	boolean _connectedToBridge;
 
-	int _pinA = 3;
+
+/*	int _pinA, _pinB, _pinC, _pinR, _pinN, _pinOutI1, _pinOutI2, _pinCorrentePompaA, _pinCorrentePompaB;
+	int _pinTastoPompaA, _pinTastoPompaB;
+*/
+/*	int _pinA = 3;
 	int _pinB = 4;
 	int _pinC = 5;
 	int _pinR = 6;
@@ -138,15 +142,12 @@ private:
 	int _pinTastoPompaA = 44;
 	int _pinTastoPompaB = 45;
 
-
-
-	boolean _connectedToBridge;
 	//definizione delle variabili corrispondent alle etichette dei dum
 	byte A, B, C, R, N, Iout1, Iout2, TastoPompaA, TastoPompaB;
 	unsigned long UpTime, _correnteA, _correnteB, _TriggerCorrentePompaA, _TriggerCorrentePompaB;
 	unsigned long cicli, stato;
 	boolean _errorePompaA, _errorePompaB;
-
+*/
 };
 
 #endif  //pwmcom_ver_1.0_H

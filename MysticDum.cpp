@@ -9,17 +9,22 @@ MysticDum::MysticDum()
 	_numParametri = SIMUL_TOTAL_N_OF_REG;
 	_fileStorageParametri = SIMUL_FILESTORAGEPARAMETRI;
 	_fileStorageParametriRete = SIMUL_FILESTORAGEPARAMETRIRETE;
+	_connectedToBridge = false;
 
 	_temperature = 0; //valori dei sensori
-	_humidity =0;
-	_luminosity=0;
+	_humidity = 0;
+	_luminosity = 0;
+	_luminosityThreshold=0;
 
+
+	pinMode(DHTPIN, INPUT);
+	pinMode(LDRPIN, INPUT);
+
+/*
 	A=0, B=0, C=0, R=0, N=0, Iout1=0, Iout2=0, TastoPompaA=0, TastoPompaB=0;
 	UpTime=0, _correnteA=0, _correnteB=0, _TriggerCorrentePompaA=0, _TriggerCorrentePompaB=0;
 	cicli=0,stato=0;
 
-	pinMode(DHTPIN, INPUT);
-	pinMode(LDRPIN, INPUT);
 
 	pinMode(_pinA, OUTPUT); pinMode(_pinB, OUTPUT); pinMode(_pinC, OUTPUT); pinMode(_pinR, OUTPUT); pinMode(_pinN, OUTPUT);
 	pinMode(_pinOutI1, OUTPUT); pinMode(_pinOutI2, OUTPUT);
@@ -32,8 +37,9 @@ MysticDum::MysticDum()
 	_errorePompaB = false;
 	_TriggerCorrentePompaA = 30;
 	_TriggerCorrentePompaB = 30;
-	_connectedToBridge = false;
-	cicli = 0;
+	*/
+
+//	cicli = 0;
 }
 
 
@@ -52,7 +58,7 @@ void MysticDum::begin() {
 	String supp, valore;
 	String Seriale, Add, chiave, Type, _fileDati;
 	Process p;
-
+	//serve per la generazione di valori random basandosi su lettura di A0
 	randomSeed(analogRead(0));
 
 	//  inizializzazione parametri
@@ -85,14 +91,15 @@ void MysticDum::begin() {
 	_seriale="PRZQU-U03I0-QZV9D-ZLDTW-RQQU1-PWIU111";
 	setSerial(_seriale);
 	setNameConf(SIMUL_NOMECONFIGURAZIONE);
-
+	//inizializzo a 0 uptime e inizio sparando dati frquentemente
 	_parametri.setValue("UpTime", 0);
-	//_invioDatiFast.setPeriod(SIMUL_INVIODATIFAST);
 	_parametri.setValue("SampleRate", "0");
 
 	//legge da filesystem il valore del parametro, lo usa anche come archiviazione della soglia stessa
-	_TriggerCorrentePompaA = getValueFromKey(_fileDati, "TriggerCorrentePompaA").toInt();
-	_TriggerCorrentePompaB = getValueFromKey(_fileDati, "TriggerCorrentePompaB").toInt();
+	_luminosityThreshold = getValueFromKey(_fileDati, "LuminosityThreshold").toInt();
+
+	//_TriggerCorrentePompaA = getValueFromKey(_fileDati, "TriggerCorrentePompaA").toInt();
+	//_TriggerCorrentePompaB = getValueFromKey(_fileDati, "TriggerCorrentePompaB").toInt();
 	aggiornaStato();
 }
 
@@ -156,7 +163,24 @@ String MysticDum::processCommand(String message) {
 			return returnPattern;
 		};
 
-		/*------------------------- TriggerCorrentePompaA --------------------------------------------*/
+//		------------------------- LuminosityThreshold --------------------------------------------
+		if (parametro == "LuminosityThreshold") {
+				risposta = valore;
+				_parametri.setValue(parametro, valore);
+				salvaParametroSuFile(parametro, valore);
+				_luminosityThreshold = valore.toInt();
+				//_DEB_PRINT("Scritto valore e riletto "); _DEB_PRINTLN(risposta);
+				_invioDatiFast.start();
+				unsigned long extraRate = getSampleRate() * 3;
+				if (_invioDatiFast.getPeriod() < extraRate)   _invioDatiFast.setPeriod(extraRate);
+				return returnPattern;
+		};
+
+
+
+
+/*
+		------------------------- TriggerCorrentePompaA --------------------------------------------
 		if (parametro == "TriggerCorrentePompaA") {
 				risposta = valore;
 				_parametri.setValue(parametro, valore);
@@ -168,7 +192,7 @@ String MysticDum::processCommand(String message) {
 				if (_invioDatiFast.getPeriod() < extraRate)   _invioDatiFast.setPeriod(extraRate);
 				return returnPattern;
 		};
-		/*------------------------- TriggerCorrentePompaB --------------------------------------------*/
+		------------------------- TriggerCorrentePompaB --------------------------------------------
 		if (parametro == "TriggerCorrentePompaB") {
 			risposta = valore;
 			_parametri.setValue(parametro, valore);
@@ -180,6 +204,7 @@ String MysticDum::processCommand(String message) {
 			if (_invioDatiFast.getPeriod() < extraRate)   _invioDatiFast.setPeriod(extraRate);
 			return returnPattern;
 		};
+*/
 
 		/*++++++++++++++++++++++++++++++++  Reboot  ++++++++++++++++++++++++++++++++++++++*/
 		if (parametro == "Reboot") {
@@ -194,6 +219,9 @@ String MysticDum::processCommand(String message) {
 	else return comando + DUM_SEPARATORE + " :Invalid command";
 }
 
+
+
+
 bool MysticDum::aggiornaStato() {
 
 	// lo scopo di questa funzione è leggere lo stato di tutti i sensori e metterli a disposizione
@@ -205,12 +233,17 @@ bool MysticDum::aggiornaStato() {
 	Process p;
 	String supp, result, chiave, valore;
 	unsigned long now = millis();
-	_errorePompaA = false;
-	_errorePompaB = false;
+	//_errorePompaA = false;
+	//_errorePompaB = false;
 
 	_parametri.setValue("UpTime", ( now / 1000));
+	_parametri.setValue("Temperature", _temperature);
+	_parametri.setValue("Humidity", _humidity);
+	_parametri.setValue("Luminosity", _luminosity);
+	_parametri.setValue("LuminosityThreshold", _luminosityThreshold);
+
 	
-	stato = (cicli) % 4;
+/*	stato = (cicli) % 4;
 	//watchdogReset();
 
 	if (stato == 0) {
@@ -250,6 +283,7 @@ bool MysticDum::aggiornaStato() {
 	_parametri.setValue("TriggerCorrentePompaB", _TriggerCorrentePompaB);
 	_parametri.setValue("TriggerCorrentePompaA", _TriggerCorrentePompaA);
 	cicli++;
+*/
 	return true;
 }
 
@@ -341,10 +375,10 @@ String MysticDum::processMessage(String message) {
 	ID_richiesta/ID_device/Command/parametro_1/parametro_2/../parametro_n
 
 	La risposta verso il centro servizi e:
-	ID_richiesta/ID_device/risposa/parametro_1/parametro_2/../parametro_n
+	ID_richiesta/ID_device/risposta/parametro_1/parametro_2/../parametro_n
 
 	risposta contiene:
-	1) Il comando ricevuto se si Ã¨ riusciti ad elaborare il comando
+	1) Il comando ricevuto se si è riusciti ad elaborare il comando
 	2) una stringa per il tipo di errore generato.
 	parametro_1.. paramentro_n
 	i dati ricevuti per questo parametro.
@@ -352,10 +386,12 @@ String MysticDum::processMessage(String message) {
 	*/
 
 
-	// fino a 2 per separare ID_richiesta/ID_device/ 
-	comm_param[0] = message.substring(0, message.indexOf('/'));
+	// fino a 2 per separare ID_richiesta/ID_device/
+	String reply = comm_param[0];
+	String parametro = comm_param[1];
+	reply = message.substring(0, message.indexOf('/'));
 	message = message.substring(message.indexOf('/') + 1);
-	comm_param[1] = message.substring(0, message.indexOf('/'));
+	parametro = message.substring(0, message.indexOf('/'));
 	message = message.substring(message.indexOf('/') + 1);
 
 
@@ -365,10 +401,11 @@ String MysticDum::processMessage(String message) {
 	  //  i++;
 	  //}
 	trovato = false;
-
-	if (comm_param[1] == "Inventory") {
-		risposta_2 = comm_param[0];
-		risposta_2 += DUM_SEPARATORE + getSerial(); ;
+//++++++++++++++++++++++++++++++++++++++++++++Inventory++++++++++++++++++++++++++++++++++++++
+	if (parametro == "Inventory") {
+		//risposta_2 = reply;
+		//risposta_2 += DUM_SEPARATORE + getSerial();
+		risposta_2 = reply + DUM_SEPARATORE + getSerial();
 		//_DEB_PRINT("Risposta ad Inventory dentro la funzione:  ");
 		_connectedToBridge = true;
 		//_DEB_PRINTLN(risposta_2);
@@ -376,18 +413,19 @@ String MysticDum::processMessage(String message) {
 		return risposta_2;
 
 	}
-
-	if (getSerial() == comm_param[1]) {
+//++++++++++++++++++++++++++++++++++++++++++++ getSerial+++++++++++++++++++++++++++++++++++++++
+	if (parametro == getSerial()) {
 		trovato = true;
-		return comm_param[0] + DUM_SEPARATORE + comm_param[1] + DUM_SEPARATORE + this->processCommand(message);
+		return reply + DUM_SEPARATORE + parametro + DUM_SEPARATORE + this->processCommand(message);
 	}
-	if (not trovato) return  comm_param[0] + DUM_SEPARATORE + comm_param[1] + DUM_SEPARATORE + "BAD DEVICE";
+	if (not trovato) return  reply + DUM_SEPARATORE + parametro + DUM_SEPARATORE + "BAD DEVICE";
 	return "no_risposta_2";
 
 }
 
 void MysticDum::generaValoriRandom()
 {
+/*
 	A = random(2); B = random(2); C = random(2);
 	N = random(2); R = random(2);
 	Iout1 = random(2);
@@ -395,19 +433,21 @@ void MysticDum::generaValoriRandom()
 	TastoPompaA = random(2);
 	TastoPompaB = random(2);
 	return;
-
+*/
 }
 
-
+/*
 void MysticDum::statoStop()
 {
 	A = 0; B = 0; C =0;
 	N = 0; R = 1;
 	Iout1 = 1;
 	Iout2 = 1;
-
-
 }
+
+*/
+
+/*
 void MysticDum::inviaStati()
 {
 	digitalWrite(_pinA, A); 	digitalWrite(_pinB, B); digitalWrite(_pinC, C); 
@@ -423,34 +463,8 @@ void MysticDum::inviaStati()
 	}
 }
 
-void MysticDum::leggiCorrenti()
-{
-	int correnteA = 0, correnteB = 0;
-	int letturaA, letturaB;
-	/*int mezzaDinamica = 4096 / 2;
-	for (int i = 0; i < 100; i++) {
-		correnteA += sq(((analogRead(_pinCorrentePompaA) - mezzaDinamica)));
-		correnteB += sq(((analogRead(_pinCorrentePompaB) - mezzaDinamica)));
-		delayMicroseconds(200);
-	}
+*/
 
-	correnteA = sqrt(correnteA) * fattoreDiCorrezione;
-	correnteB = sqrt(correnteB)* fattoreDiCorrezione;*/
-
-	for (int i = 0; i < 100; i++) {
-		letturaA = (analogRead(_pinCorrentePompaA));
-		letturaB = (analogRead(_pinCorrentePompaB));
-		if (letturaA > correnteA) correnteA = letturaA;
-		if (letturaB > correnteB) correnteB = letturaB;
-		
-		delayMicroseconds(200);
-	}
-	if (correnteA < 20) correnteA = 0;
-	if (correnteB < 20) correnteB = 0;
-	_correnteA = correnteA;
-	_correnteB = correnteB;
-	
-}
 
 //inserire logica di controllo per dht22 per esempio per tararlo correttamente
 void MysticDum::getTemperature(){
