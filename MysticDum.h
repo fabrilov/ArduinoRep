@@ -5,6 +5,9 @@
 #include "Parametri.h"
 #include "Dum.h"
 
+#include <Wire.h> //per sensore 12c es. giroscopio/accelerometro
+#include "DHT.h" // sensore temp. umidità DHT 22  (AM2302)
+
 //#define SIMUL_INVIODATIFAST 120000
 #define SIMUL_MAX_PARAMETERS_FROM_CS 10       // numero massimo di parametri che possono arrivare dal centro servizi                                
 #define SIMUL_HIDDEN		"h"					// valore che nasconde il widget
@@ -28,6 +31,9 @@
 
 
 //inserire define dei pin da usare
+//sensore DHT
+#define DHTPIN 7
+#define DHTTYPE DHT22
 
 
 
@@ -67,10 +73,6 @@
 
 
 
-
-
-
-
 class MysticDum : public Dum
 {
 
@@ -98,7 +100,6 @@ public:
 	virtual String processCommand(String);				// elabora e risponde ad un comando del DAB CS o del sito web
 	unsigned long int getSampleRate();					// funzione per prelevare il sample rate in miilisecondi
 	String leggiParametroStringSuFile(String Parametro);            // Funzione per leggere il parametro Stringa sul file system linux
-	//void aggiornaSito();								// prepara i dati e li invia la sito o alla APP
 	void sendDataToCs();								// prepara i dati e li invia al centro servizi
 	void riceviMessaggi();								// riceve i messaggi dal centro servizzi li passa a processMessage
 	String processMessage(String message);				// Risponde alle richieste base: inventory, setparam, se riguardano un altro dum smista la richiesta al dum corretto
@@ -109,8 +110,17 @@ protected:
 	String _fileConfigurazionePwmCom = SIMUL_PERCORSOCONFIGURAZIONE;
 
 private:
+	void generazioneStati();						// Stato Casuale
+	void statoStop();
+	void inviaStati();
+	void leggiCorrenti();
+
 	/*int _pinA, _pinB, _pinC, _pinR, _pinN, _pinOutI1, _pinOutI2, _pinCorrentePompaA, _pinCorrentePompaB;
 	int _pinTastoPompaA, _pinTastoPompaB;*/
+	float _humidity;  //Stores humidity value
+	float _temperature; //Stores temperature value
+
+
 	int _pinA = 3;
 	int _pinB = 4;
 	int _pinC = 5;
@@ -124,12 +134,9 @@ private:
 	int _pinTastoPompaB = 45;
 
 
-	void generazioneStati();						// Stato Casuale
-	void statoStop();
-	void inviaStati();
-	void leggiCorrenti();
 
 	boolean _connectedToBridge;
+	//definizione delle variabili corrispondent alle etichette dei dum
 	byte A, B, C, R, N, Iout1, Iout2, TastoPompaA, TastoPompaB;
 	unsigned long UpTime, _correnteA, _correnteB, _TriggerCorrentePompaA, _TriggerCorrentePompaB;
 	unsigned long cicli, stato;

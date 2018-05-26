@@ -1,25 +1,35 @@
  #include "MysticDum.h"
 
+//invoco costruttore per sens temperatura
+DHT dht(DHTPIN, DHTTYPE);
 
 
 MysticDum::MysticDum()
 {
-
 	_numParametri = SIMUL_TOTAL_N_OF_REG;
 	_fileStorageParametri = SIMUL_FILESTORAGEPARAMETRI;
+	_fileStorageParametriRete = SIMUL_FILESTORAGEPARAMETRIRETE;
+
+	_temperature = 0;
+	_humidity =0;
+
 	A=0, B=0, C=0, R=0, N=0, Iout1=0, Iout2=0, TastoPompaA=0, TastoPompaB=0;
 	UpTime=0, _correnteA=0, _correnteB=0, _TriggerCorrentePompaA=0, _TriggerCorrentePompaB=0;
 	cicli=0,stato=0;
+
+	pinMode(DHTPIN, OUTPUT);
+
 	pinMode(_pinA, OUTPUT); pinMode(_pinB, OUTPUT); pinMode(_pinC, OUTPUT); pinMode(_pinR, OUTPUT); pinMode(_pinN, OUTPUT);
 	pinMode(_pinOutI1, OUTPUT); pinMode(_pinOutI2, OUTPUT);
 	pinMode(_pinTastoPompaA, OUTPUT); pinMode(_pinTastoPompaB, OUTPUT);
 	pinMode(_pinCorrentePompaA, INPUT);
 	pinMode(_pinCorrentePompaB, INPUT);
+
+
 	_errorePompaA = false;
 	_errorePompaB = false;
 	_TriggerCorrentePompaA = 30;
 	_TriggerCorrentePompaB = 30;
-	_fileStorageParametriRete = SIMUL_FILESTORAGEPARAMETRIRETE;
 	_connectedToBridge = false;
 	cicli = 0;
 }
@@ -32,6 +42,8 @@ MysticDum::~MysticDum()
 
 
 void MysticDum::begin() {
+	//inizializzo sensore temperatura
+	dht.begin();
 
 	String supp, valore;
 	String Seriale, Add, chiave, Type, _fileDati;
@@ -68,6 +80,7 @@ void MysticDum::begin() {
 	//_invioDatiFast.setPeriod(SIMUL_INVIODATIFAST);
 	_parametri.setValue("SampleRate", "0");
 
+	//FIX ME: FLO: inserisco seriale Hardcoded per velocità
 	//_seriale = getValueFromKey(_fileDati, "DUM21@Serial");
 	_seriale="PRZQU-U03I0-QZV9D-ZLDTW-RQQU1-PWIU111";
 
