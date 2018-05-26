@@ -34,6 +34,8 @@
 //sensore DHT
 #define DHTPIN 7
 #define DHTTYPE DHT22
+//sensore LDR
+#define LDRPIN A0
 
 
 
@@ -85,7 +87,7 @@ private:
 		Aggiungere parametri non richiede conosceli.
 	*/
 	String label_for_cs[SIMUL_TOTAL_N_OF_REG] PROGMEM = 
-	{"Switch1","Switch2","LDR","Temperature","Humidity",
+	{"Switch1","Switch2","Luminosity","Temperature","Humidity",
 	 "UpTime", "SampleRate","Reboot"};
 
 
@@ -110,16 +112,19 @@ protected:
 	String _fileConfigurazionePwmCom = SIMUL_PERCORSOCONFIGURAZIONE;
 
 private:
-	void generazioneStati();						// Stato Casuale
+	void generaValoriRandom();						// Stato Casuale
 	void statoStop();
 	void inviaStati();
 	void leggiCorrenti();
+	void getTemperature();
+	void getHumidity();
+	void getLuminosity();
 
 	/*int _pinA, _pinB, _pinC, _pinR, _pinN, _pinOutI1, _pinOutI2, _pinCorrentePompaA, _pinCorrentePompaB;
 	int _pinTastoPompaA, _pinTastoPompaB;*/
 	float _humidity;  //Stores humidity value
 	float _temperature; //Stores temperature value
-
+	int _luminosity; //Stores ldr luminosity value
 
 	int _pinA = 3;
 	int _pinB = 4;

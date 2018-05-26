@@ -141,10 +141,10 @@ String Dum::processCommand(String message){
 /*
 Esempio del codcie da mettere qa:....
 
-  if (parameters[0] == "SetParam") {
+  if (comm_param[0] == "SetParam") {
   // Qui conviene mettere una
-  comando = parameters[1];
-  valore = parameters[2];
+  comando = comm_param[1];
+  valore = comm_param[2];
   }
 */
 return message;

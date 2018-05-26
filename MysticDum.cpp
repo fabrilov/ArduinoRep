@@ -10,14 +10,16 @@ MysticDum::MysticDum()
 	_fileStorageParametri = SIMUL_FILESTORAGEPARAMETRI;
 	_fileStorageParametriRete = SIMUL_FILESTORAGEPARAMETRIRETE;
 
-	_temperature = 0;
+	_temperature = 0; //valori dei sensori
 	_humidity =0;
+	_luminosity=0;
 
 	A=0, B=0, C=0, R=0, N=0, Iout1=0, Iout2=0, TastoPompaA=0, TastoPompaB=0;
 	UpTime=0, _correnteA=0, _correnteB=0, _TriggerCorrentePompaA=0, _TriggerCorrentePompaB=0;
 	cicli=0,stato=0;
 
-	pinMode(DHTPIN, OUTPUT);
+	pinMode(DHTPIN, INPUT);
+	pinMode(LDRPIN, INPUT);
 
 	pinMode(_pinA, OUTPUT); pinMode(_pinB, OUTPUT); pinMode(_pinC, OUTPUT); pinMode(_pinR, OUTPUT); pinMode(_pinN, OUTPUT);
 	pinMode(_pinOutI1, OUTPUT); pinMode(_pinOutI2, OUTPUT);
@@ -117,10 +119,9 @@ String MysticDum::processCommand(String message) {
 	Lista di valori che rappresntano la riuscita dell'operazione.
 	*/
 
-	String  valore, risposta, parametro;
-	String parameters[SIMUL_MAX_PARAMETERS_FROM_CS]; //array contenente i parametri che possono arrivare dal CS
+	String comm_param[SIMUL_MAX_PARAMETERS_FROM_CS]; //array contenente i parametri che possono arrivare dal CS
 	for (int j = 0; j < SIMUL_MAX_PARAMETERS_FROM_CS; j++) {
-		parameters[j] = "";
+		comm_param[j] = "";
 	}
 	// _DEB_PRINT("Comando ricevuto dal lato linux: "); _DEB_PRINTLN(message);
 
@@ -129,20 +130,21 @@ String MysticDum::processCommand(String message) {
 	//substring() with only one parameter looks for a given substring from the position given to the end of the string
 	int i = 0;
 	while ((message.indexOf('/') > 0) || (i < SIMUL_MAX_PARAMETERS_FROM_CS - 1)) {
-		parameters[i] = message.substring(0, message.indexOf('/')); //popolo array
+		comm_param[i] = message.substring(0, message.indexOf('/')); //popolo array
 		message = message.substring(message.indexOf('/') + 1); // trimmo la coda messaggi del parametro+sepatore e ciclo
 		i++;
 	}
-	parameters[i] = message; //ultima occorrenza
-
-
-	risposta = "InvalidCommand";
+	comm_param[i] = message; //ultima occorrenza
+	String risposta = "InvalidCommand";
+	String comando = comm_param[0];
+	String parametro = comm_param[1];
+	String valore = comm_param[2];
+	String returnPattern = comando + DUM_SEPARATORE + parametro + DUM_SEPARATORE + risposta;
 // cerco una logica: comando->parametro,valore il  coamndo è il primo parsato e inserito nell'array, seguono parametro e valore
-	if (parameters[0] == "SetParam") {
+	if (comando == "SetParam") {
 		_invioDatiFast.start();
-		parametro = parameters[1];
-		valore = parameters[2];
-
+		//parametro = comm_param[1];
+		//valore = comm_param[2];
 		/*------------------------- SampleRate --------------------------------------------*/
 		if (parametro == "SampleRate") {
 			risposta = valore;
@@ -150,8 +152,8 @@ String MysticDum::processCommand(String message) {
 			//_DEB_PRINT("Scritto valore e riletto "); _DEB_PRINTLN(risposta);
 			_invioDatiFast.start();
 			unsigned long extraRate = getSampleRate() * 3;
-			if (_invioDatiFast.getPeriod() < extraRate)   _invioDatiFast.setPeriod(extraRate);
-			return parameters[0] + DUM_SEPARATORE + parameters[1] + DUM_SEPARATORE + risposta;
+			if (_invioDatiFast.getPeriod() < extraRate) _invioDatiFast.setPeriod(extraRate);
+			return returnPattern;
 		};
 
 		/*------------------------- TriggerCorrentePompaA --------------------------------------------*/
@@ -164,7 +166,7 @@ String MysticDum::processCommand(String message) {
 				_invioDatiFast.start();
 				unsigned long extraRate = getSampleRate() * 3;
 				if (_invioDatiFast.getPeriod() < extraRate)   _invioDatiFast.setPeriod(extraRate);
-				return parameters[0] + DUM_SEPARATORE + parameters[1] + DUM_SEPARATORE + risposta;
+				return returnPattern;
 		};
 		/*------------------------- TriggerCorrentePompaB --------------------------------------------*/
 		if (parametro == "TriggerCorrentePompaB") {
@@ -172,21 +174,24 @@ String MysticDum::processCommand(String message) {
 			_parametri.setValue(parametro, valore);
 			salvaParametroSuFile(parametro, valore);
 			_TriggerCorrentePompaB = valore.toInt();
-				//_DEB_PRINT("Scritto valore e riletto "); _DEB_PRINTLN(risposta);
-				_invioDatiFast.start();
+			//_DEB_PRINT("Scritto valore e riletto "); _DEB_PRINTLN(risposta);
+			_invioDatiFast.start();
 			unsigned long extraRate = getSampleRate() * 3;
 			if (_invioDatiFast.getPeriod() < extraRate)   _invioDatiFast.setPeriod(extraRate);
-			return parameters[0] + DUM_SEPARATORE + parameters[1] + DUM_SEPARATORE + risposta;
+			return returnPattern;
 		};
 
-
-/*++++++++++++++++++++++++++++++++  Reboot  ++++++++++++++++++++++++++++++++++++++*/
+		/*++++++++++++++++++++++++++++++++  Reboot  ++++++++++++++++++++++++++++++++++++++*/
 		if (parametro == "Reboot") {
 			while (1) { ;; }
 		}
-		return parameters[0] + DUM_SEPARATORE + "Invalid param";
+	/*++++++++++++++++++++++++++++++++  param non valido  ++++++++++++++++++++++++++++++++++++++*/
+		else{
+			//Pattern composto da comando + DUM_SEPARATORE + parametro + DUM_SEPARATORE + risposta;
+			return comando + DUM_SEPARATORE + parametro + " :InvalidParam";}
 	}
-	else return parameters[0] + DUM_SEPARATORE + "Invalid command";
+/*++++++++++++++++++++++++++++++++  comando non valido  ++++++++++++++++++++++++++++++++++++++*/
+	else return comando + DUM_SEPARATORE + " :Invalid command";
 }
 
 bool MysticDum::aggiornaStato() {
@@ -209,7 +214,7 @@ bool MysticDum::aggiornaStato() {
 	//watchdogReset();
 
 	if (stato == 0) {
-		generazioneStati();
+		generaValoriRandom();
 		inviaStati();
 		delay(6000);
 	}
@@ -324,7 +329,7 @@ void MysticDum::riceviMessaggi() {
 
 
 String MysticDum::processMessage(String message) {
-	String parameters[2]{ "","" };
+	String comm_param[2]{ "","" };
 	String risposta_2;
 	bool trovato;
 	M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.processMessage()  -----------------");
@@ -348,21 +353,21 @@ String MysticDum::processMessage(String message) {
 
 
 	// fino a 2 per separare ID_richiesta/ID_device/ 
-	parameters[0] = message.substring(0, message.indexOf('/'));
+	comm_param[0] = message.substring(0, message.indexOf('/'));
 	message = message.substring(message.indexOf('/') + 1);
-	parameters[1] = message.substring(0, message.indexOf('/'));
+	comm_param[1] = message.substring(0, message.indexOf('/'));
 	message = message.substring(message.indexOf('/') + 1);
 
 
 	  //while ((message.indexOf('/') > 0) || (i < 2)) {
-	  //  parameters[i] = message.substring(0, message.indexOf('/'));
+	  //  comm_param[i] = message.substring(0, message.indexOf('/'));
 	  //  message = message.substring(message.indexOf('/') + 1);
 	  //  i++;
 	  //}
 	trovato = false;
 
-	if (parameters[1] == "Inventory") {
-		risposta_2 = parameters[0];
+	if (comm_param[1] == "Inventory") {
+		risposta_2 = comm_param[0];
 		risposta_2 += DUM_SEPARATORE + getSerial(); ;
 		//_DEB_PRINT("Risposta ad Inventory dentro la funzione:  ");
 		_connectedToBridge = true;
@@ -372,16 +377,16 @@ String MysticDum::processMessage(String message) {
 
 	}
 
-	if (getSerial() == parameters[1]) {
+	if (getSerial() == comm_param[1]) {
 		trovato = true;
-		return parameters[0] + DUM_SEPARATORE + parameters[1] + DUM_SEPARATORE + this->processCommand(message);
+		return comm_param[0] + DUM_SEPARATORE + comm_param[1] + DUM_SEPARATORE + this->processCommand(message);
 	}
-	if (not trovato) return  parameters[0] + DUM_SEPARATORE + parameters[1] + DUM_SEPARATORE + "BAD DEVICE";
+	if (not trovato) return  comm_param[0] + DUM_SEPARATORE + comm_param[1] + DUM_SEPARATORE + "BAD DEVICE";
 	return "no_risposta_2";
 
 }
 
-void MysticDum::generazioneStati()
+void MysticDum::generaValoriRandom()
 {
 	A = random(2); B = random(2); C = random(2);
 	N = random(2); R = random(2);
@@ -407,8 +412,8 @@ void MysticDum::inviaStati()
 {
 	digitalWrite(_pinA, A); 	digitalWrite(_pinB, B); digitalWrite(_pinC, C); 
 	digitalWrite(_pinR, R); digitalWrite(_pinN, N);
-
 	digitalWrite(_pinOutI1, Iout1); digitalWrite(_pinOutI2, Iout2);
+
 	if (stato == 0) {
 		digitalWrite(_pinTastoPompaA, TastoPompaA);
 		digitalWrite(_pinTastoPompaB, TastoPompaB);
@@ -445,5 +450,20 @@ void MysticDum::leggiCorrenti()
 	_correnteA = correnteA;
 	_correnteB = correnteB;
 	
+}
+
+//inserire logica di controllo per dht22 per esempio per tararlo correttamente
+void MysticDum::getTemperature(){
+    _temperature = dht.readTemperature();
+}
+
+void MysticDum::getHumidity(){
+	_humidity = dht.readHumidity();
+
+}
+
+void MysticDum::getLuminosity(){
+	_luminosity = analogRead(LDRPIN);
+
 }
 
