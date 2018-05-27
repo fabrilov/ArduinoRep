@@ -14,25 +14,13 @@ MysticDum::MysticDum()
 	_temperature = 0; //valori dei sensori
 	_humidity = 0;
 	_luminosity = 0;
-	_luminosityThreshold=0;
-
+	_luminosityThreshold=28;
+	_switch1=0;
 
 	pinMode(DHTPIN, INPUT);
 	pinMode(LDRPIN, INPUT);
 
 /*
-	A=0, B=0, C=0, R=0, N=0, Iout1=0, Iout2=0, TastoPompaA=0, TastoPompaB=0;
-	UpTime=0, _correnteA=0, _correnteB=0, _TriggerCorrentePompaA=0, _TriggerCorrentePompaB=0;
-	cicli=0,stato=0;
-
-
-	pinMode(_pinA, OUTPUT); pinMode(_pinB, OUTPUT); pinMode(_pinC, OUTPUT); pinMode(_pinR, OUTPUT); pinMode(_pinN, OUTPUT);
-	pinMode(_pinOutI1, OUTPUT); pinMode(_pinOutI2, OUTPUT);
-	pinMode(_pinTastoPompaA, OUTPUT); pinMode(_pinTastoPompaB, OUTPUT);
-	pinMode(_pinCorrentePompaA, INPUT);
-	pinMode(_pinCorrentePompaB, INPUT);
-
-
 	_errorePompaA = false;
 	_errorePompaB = false;
 	_TriggerCorrentePompaA = 30;
@@ -97,7 +85,6 @@ void MysticDum::begin() {
 
 	//legge da filesystem il valore del parametro, lo usa anche come archiviazione della soglia stessa
 	_luminosityThreshold = getValueFromKey(_fileDati, "LuminosityThreshold").toInt();
-
 	//_TriggerCorrentePompaA = getValueFromKey(_fileDati, "TriggerCorrentePompaA").toInt();
 	//_TriggerCorrentePompaB = getValueFromKey(_fileDati, "TriggerCorrentePompaB").toInt();
 	aggiornaStato();
@@ -369,9 +356,7 @@ String MysticDum::processMessage(String message) {
 	M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.processMessage()  -----------------");
 	//_DEB_PRINT("Comando ricevuto dal lato linux (dentro process_message: "); _DEB_PRINTLN(message);
 
-
 	/* Formato richiesta da CS:
-
 	ID_richiesta/ID_device/Command/parametro_1/parametro_2/../parametro_n
 
 	La risposta verso il centro servizi e:
@@ -382,9 +367,7 @@ String MysticDum::processMessage(String message) {
 	2) una stringa per il tipo di errore generato.
 	parametro_1.. paramentro_n
 	i dati ricevuti per questo parametro.
-
 	*/
-
 
 	// fino a 2 per separare ID_richiesta/ID_device/
 	String reply = comm_param[0];
@@ -393,13 +376,6 @@ String MysticDum::processMessage(String message) {
 	message = message.substring(message.indexOf('/') + 1);
 	parametro = message.substring(0, message.indexOf('/'));
 	message = message.substring(message.indexOf('/') + 1);
-
-
-	  //while ((message.indexOf('/') > 0) || (i < 2)) {
-	  //  comm_param[i] = message.substring(0, message.indexOf('/'));
-	  //  message = message.substring(message.indexOf('/') + 1);
-	  //  i++;
-	  //}
 	trovato = false;
 //++++++++++++++++++++++++++++++++++++++++++++Inventory++++++++++++++++++++++++++++++++++++++
 	if (parametro == "Inventory") {
@@ -423,17 +399,36 @@ String MysticDum::processMessage(String message) {
 
 }
 
-void MysticDum::generaValoriRandom()
-{
-/*
-	A = random(2); B = random(2); C = random(2);
-	N = random(2); R = random(2);
-	Iout1 = random(2);
-	Iout2 = random(2);
-	TastoPompaA = random(2);
-	TastoPompaB = random(2);
-	return;
-*/
+//inserire logica di controllo per dht22 per esempio per tararlo correttamente
+void MysticDum::getTemperature(){
+	 //   _temperature = dht.readTemperature();
+	 _temperature = getRandomFloatValue(20,25);
+}
+
+void MysticDum::getHumidity(){
+	// _humidity = dht.readHumidity();
+	_humidity = getRandomFloatValue(60, 95);
+}
+
+void MysticDum::getLuminosity(){
+	// _luminosity = analogRead(LDRPIN);
+	_luminosity = getRandomIntValue(1, 100);
+}
+
+void MysticDum::getSwitchStatus(){
+	_switch1 = getRandomIntValue(0, 2); //FIX per debug da valori 0/1
+}
+
+int MysticDum::getRandomIntValue(int min, int max){
+	int val;
+	val = random(min,max);
+	return val;
+}
+
+
+float MysticDum::getRandomFloatValue(int min, int max){
+	float val = random(min, max)/100.0;
+	return val;
 }
 
 /*
@@ -466,18 +461,4 @@ void MysticDum::inviaStati()
 */
 
 
-//inserire logica di controllo per dht22 per esempio per tararlo correttamente
-void MysticDum::getTemperature(){
-    _temperature = dht.readTemperature();
-}
-
-void MysticDum::getHumidity(){
-	_humidity = dht.readHumidity();
-
-}
-
-void MysticDum::getLuminosity(){
-	_luminosity = analogRead(LDRPIN);
-
-}
 

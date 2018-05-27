@@ -112,14 +112,18 @@ protected:
 	String _fileConfigurazionePwmCom = SIMUL_PERCORSOCONFIGURAZIONE;
 
 private:
-	void generaValoriRandom();						// Stato Casuale
+	int getRandomIntValue(int min, int max);						// Stato Casuale
+	float getRandomFloatValue(int min, int max);
 	//void statoStop();
 	void inviaStati();
 	//void leggiCorrenti();
 	void getTemperature();
 	void getHumidity();
 	void getLuminosity();
+	void getSwitchStatus();
 
+	//variabili corrispondenti alle etichette dei parametri del dum
+	boolean _switch1;
 	float _humidity;  //Stores humidity value
 	float _temperature; //Stores temperature value
 	int _luminosity; //Stores ldr luminosity value
