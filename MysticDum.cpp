@@ -129,6 +129,7 @@ String MysticDum::processCommand(String message) {
 		i++;
 	}
 	comm_param[i] = message; //ultima occorrenza
+
 	String risposta = "InvalidCommand";
 	String comando = comm_param[0];
 	String parametro = comm_param[1];
@@ -160,7 +161,7 @@ String MysticDum::processCommand(String message) {
 				_invioDatiFast.start();
 				unsigned long extraRate = getSampleRate() * 3;
 				if (_invioDatiFast.getPeriod() < extraRate)   _invioDatiFast.setPeriod(extraRate);
-				return returnPattern;
+				return comando + DUM_SEPARATORE + parametro + DUM_SEPARATORE + risposta;
 		};
 
 
@@ -223,11 +224,18 @@ bool MysticDum::aggiornaStato() {
 	//_errorePompaA = false;
 	//_errorePompaB = false;
 
+	//attualizzo il valore e chimao la setvalue
+	_temperature = getTemperature();
+	_humidity = getHumidity();
+	_luminosity = getLuminosity();
+	_switch1 = getSwitchStatus();
+
 	_parametri.setValue("UpTime", ( now / 1000));
 	_parametri.setValue("Temperature", _temperature);
 	_parametri.setValue("Humidity", _humidity);
 	_parametri.setValue("Luminosity", _luminosity);
 	_parametri.setValue("LuminosityThreshold", _luminosityThreshold);
+	_parametri.setValue("Switch1", _switch1);
 
 	
 /*	stato = (cicli) % 4;
@@ -284,12 +292,7 @@ unsigned long int MysticDum::getSampleRate() {
 		return value;
 	}
 
-/*
-void MysticDum::aggiornaSito() {
-	//M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.aggiornaSito() ---------------------");
-	//M_CAFFE_INOUT_PRINTLN("Uscita Macchinetta caffe.aggiornaSito()");
-};
-*/
+
 void MysticDum::sendDataToCs() {
 	M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.sendDataToCs() ---------------------");
 
@@ -329,13 +332,11 @@ void MysticDum::riceviMessaggi() {
 			if (Mailbox.messageAvailable() > 0)
 			{
 				// legge il messaggio scritto dal bridge e restituisce il risultato. 
-
 				Mailbox.readMessage(message);
-				M_CAFFE_INOUT_PRINT("Ricevuto Messaggio: "); M_CAFFE_INOUT_PRINT(message); M_CAFFE_INOUT_PRINT("  ");
-				this->setSampleRate(3);
-				M_CAFFE_INOUT_PRINTLN(" Cambio sampleRate  ");
-				risposta = processMessage(message);
-				M_CAFFE_INOUT_PRINT("Ottenuta Risposta da processMessagge: "); M_CAFFE_INOUT_PRINT(risposta); M_CAFFE_INOUT_PRINTLN("  ");
+				//M_CAFFE_INOUT_PRINT("Ricevuto Messaggio: "); M_CAFFE_INOUT_PRINT(message); M_CAFFE_INOUT_PRINT("  ");
+				this->setSampleRate(3); //cambio sampleRate
+				risposta = processMessage(message); //processo il messaggio
+				//M_CAFFE_INOUT_PRINT("Ottenuta Risposta da processMessagge: "); M_CAFFE_INOUT_PRINT(risposta); M_CAFFE_INOUT_PRINTLN("  ");
 
 				Mailbox.writeMessage(risposta);
 				M_CAFFE_INOUT_PRINTLN("Scrivo sulla mailBox  ");
@@ -400,23 +401,27 @@ String MysticDum::processMessage(String message) {
 }
 
 //inserire logica di controllo per dht22 per esempio per tararlo correttamente
-void MysticDum::getTemperature(){
-	 //   _temperature = dht.readTemperature();
-	 _temperature = getRandomFloatValue(20,25);
+float  MysticDum::getTemperature(){
+	 float temp = dht.readTemperature();
+	 //int temp = getRandomIntValue(20,25);
+	 return temp;
 }
 
-void MysticDum::getHumidity(){
-	// _humidity = dht.readHumidity();
-	_humidity = getRandomFloatValue(60, 95);
+float MysticDum::getHumidity(){
+	float hum = dht.readHumidity();
+	//int hum = getRandomIntValue(60, 95);
+	return hum;
 }
 
-void MysticDum::getLuminosity(){
-	// _luminosity = analogRead(LDRPIN);
-	_luminosity = getRandomIntValue(1, 100);
+int MysticDum::getLuminosity(){
+	 int lum = analogRead(LDRPIN);
+	//int lum = getRandomIntValue(1, 100);
+	return lum;
 }
 
-void MysticDum::getSwitchStatus(){
-	_switch1 = getRandomIntValue(0, 2); //FIX per debug da valori 0/1
+int MysticDum::getSwitchStatus(){
+	int swch = getRandomIntValue(0, 2); //FIX per debug da valori 0/1
+	return swch;
 }
 
 int MysticDum::getRandomIntValue(int min, int max){
@@ -427,7 +432,7 @@ int MysticDum::getRandomIntValue(int min, int max){
 
 
 float MysticDum::getRandomFloatValue(int min, int max){
-	float val = random(min, max)/100.0;
+	float val = float(random(min, max));
 	return val;
 }
 
@@ -442,7 +447,7 @@ void MysticDum::statoStop()
 
 */
 
-/*
+/*                    QUI ATTUOvGLI STATI
 void MysticDum::inviaStati()
 {
 	digitalWrite(_pinA, A); 	digitalWrite(_pinB, B); digitalWrite(_pinC, C); 

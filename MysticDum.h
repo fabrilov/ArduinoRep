@@ -6,7 +6,7 @@
 #include "Dum.h"
 
 #include <Wire.h> //per sensore 12c es. giroscopio/accelerometro
-#include "DHT.h" // sensore temp. umidità DHT 22  (AM2302)
+#include "DHT.h" // sensore temp. umidità DHT 21  (AM2301)
 
 //#define SIMUL_INVIODATIFAST 120000
 #define SIMUL_MAX_PARAMETERS_FROM_CS 10       // numero massimo di parametri che possono arrivare dal centro servizi                                
@@ -27,7 +27,7 @@
 //#define SIMUL_NOME_FILE_DATI_TO_WEB				"data_to_cs.json"						// File definitivo dove sono memoriazzati i dati per il sito locale
 #define SIMUL_MAX_CAR_TO_BRIDGE 250											// numero massimo di caratteri che possono arrivare dal Bridge
 #define SIMUL_TOTAL_N_OF_REG	 8  // definizione grandezza del buffer dove sono memomorizzati i dati,  numero parametri da trattare
-#define SIMUL_NOMECONFIGURAZIONE	   "MysticBox"
+#define SIMUL_NOMECONFIGURAZIONE	   "MysticDum"
 
 
 //inserire define dei pin da usare
@@ -117,10 +117,10 @@ private:
 	//void statoStop();
 	void inviaStati();
 	//void leggiCorrenti();
-	void getTemperature();
-	void getHumidity();
-	void getLuminosity();
-	void getSwitchStatus();
+	float getTemperature();
+	float getHumidity();
+	int getLuminosity();
+	int getSwitchStatus();
 
 	//variabili corrispondenti alle etichette dei parametri del dum
 	boolean _switch1;

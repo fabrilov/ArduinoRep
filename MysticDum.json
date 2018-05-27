@@ -1,0 +1,196 @@
+{
+  "configuration_id": "c35314bf-a254-47be-849c-42fbe23cf587",
+  "definition": "",
+  "name": "MysticDum",
+  "label": "MysticDum",
+  "childnum": 0,
+  "description": "multisensorial device FLO",
+  "metric": 1,
+  "state_validity": 1,
+  "metadata": {
+    "family": "",
+    "groups": [
+      "Enviroment Sensor Status",
+      "Switch Status",
+      "Control Board"
+    ],
+    "params": [
+      {
+        "name": "Temperature",
+        "type": "measure",
+        "family": "thermo",
+        "group": "Enviroment Sensor Status",
+        "groupPos": 0,
+        "view": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "change": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "log": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "unit": "C",
+        "weight": 0,
+        "min": 0,
+        "max": 40,
+        "warn_low": 10,
+        "warn_hi": 30,
+        "values": []
+      },
+      {
+        "name": "Humidity",
+        "type": "measure",
+        "family": "graph",
+        "group": "Enviroment Sensor Status",
+        "groupPos": 0,
+        "view": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "change": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "log": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "unit": "%",
+        "weight": 0,
+        "min": 0,
+        "max": 100,
+        "warn_low": 20,
+        "warn_hi": 95,
+        "values": []
+      },
+      {
+        "name": "Luminosity",
+        "type": "measure",
+        "family": "graph",
+        "group": "Enviroment Sensor Status",
+        "groupPos": 2,
+        "view": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "change": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "log": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "unit": "lum",
+        "weight": 0,
+        "min": 0,
+        "max": 5000,
+        "warn_low": 250,
+        "warn_hi": 4500,
+        "values": []
+      },
+      {
+        "name": "LuminosityThreshold",
+        "type": "measure",
+        "family": "gear",
+        "group": "Control Board",
+        "groupPos": 0,
+        "view": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "change": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "log": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "unit": "lum",
+        "weight": 0,
+        "min": 0,
+        "max": 4000,
+        "values": []
+      },
+      {
+        "name": "Switch1",
+        "type": "enum",
+        "family": "onoff",
+        "group": "Switch Status",
+        "groupPos": 0,
+        "view": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "log": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "values": [
+          [
+            null,
+            "Spento"
+          ],
+          [
+            1,
+            "Acceso"
+          ]
+        ]
+      },
+      {
+        "name": "UpTime",
+        "type": "measure",
+        "family": "time",
+        "group": "Enviroment Sensor Status",
+        "groupPos": 10,
+        "view": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "log": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "unit": "s"
+      }
+    ],
+    "trigger": []
+  }
+}
