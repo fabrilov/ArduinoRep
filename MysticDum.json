@@ -27,12 +27,7 @@
           "INSTALLER",
           "R&D"
         ],
-        "change": [
-          "CUSTOMER",
-          "SERVICE",
-          "INSTALLER",
-          "R&D"
-        ],
+        "change": [],
         "log": [
           "CUSTOMER",
           "SERVICE",
@@ -59,12 +54,7 @@
           "INSTALLER",
           "R&D"
         ],
-        "change": [
-          "CUSTOMER",
-          "SERVICE",
-          "INSTALLER",
-          "R&D"
-        ],
+        "change": [],
         "log": [
           "CUSTOMER",
           "SERVICE",
@@ -91,12 +81,7 @@
           "INSTALLER",
           "R&D"
         ],
-        "change": [
-          "CUSTOMER",
-          "SERVICE",
-          "INSTALLER",
-          "R&D"
-        ],
+        "change": [],
         "log": [
           "CUSTOMER",
           "SERVICE",
@@ -153,6 +138,7 @@
           "INSTALLER",
           "R&D"
         ],
+        "change": [],
         "log": [
           "CUSTOMER",
           "SERVICE",
@@ -189,6 +175,43 @@
           "R&D"
         ],
         "unit": "s"
+      },
+      {
+        "name": "SwitchMode",
+        "type": "enum",
+        "family": "onoff",
+        "group": "Control Board",
+        "groupPos": 0,
+        "view": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "change": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "log": [
+          "CUSTOMER",
+          "SERVICE",
+          "INSTALLER",
+          "R&D"
+        ],
+        "min": 0,
+        "max": 0,
+        "values": [
+          [
+            null,
+            "OFF"
+          ],
+          [
+            1,
+            "ON"
+          ]
+        ]
       }
     ],
     "trigger": []

@@ -16,10 +16,12 @@ MysticDum::MysticDum()
 	_luminosity = 0;
 	_luminosityThreshold=28;
 	_switch1=0;
+	_relayMode=0;
 
 	pinMode(DHTPIN, INPUT);
 	pinMode(LDRPIN, INPUT);
-
+	pinMode(RELAYPIN, OUTPUT);
+	digitalWrite( RELAYPIN, LOW ); //lo metto allo stato basso all'inzializzazione
 /*
 	_errorePompaA = false;
 	_errorePompaB = false;
@@ -85,6 +87,8 @@ void MysticDum::begin() {
 
 	//legge da filesystem il valore del parametro, lo usa anche come archiviazione della soglia stessa
 	_luminosityThreshold = getValueFromKey(_fileDati, "LuminosityThreshold").toInt();
+	_relayMode = getValueFromKey(_fileDati, "SwitchConfig").toInt();
+
 	//_TriggerCorrentePompaA = getValueFromKey(_fileDati, "TriggerCorrentePompaA").toInt();
 	//_TriggerCorrentePompaB = getValueFromKey(_fileDati, "TriggerCorrentePompaB").toInt();
 	aggiornaStato();
@@ -164,6 +168,19 @@ String MysticDum::processCommand(String message) {
 				return comando + DUM_SEPARATORE + parametro + DUM_SEPARATORE + risposta;
 		};
 
+//		------------------------- Switch/relay Mode --------------------------------------------
+		if (parametro == "SwitchMode") {
+				risposta = valore;
+				_parametri.setValue(parametro, valore);
+				salvaParametroSuFile(parametro, valore);
+				_relayMode = valore.toInt();
+				//_DEB_PRINT("Scritto valore e riletto "); _DEB_PRINTLN(risposta);
+				_invioDatiFast.start();
+				unsigned long extraRate = getSampleRate() * 3;
+				if (_invioDatiFast.getPeriod() < extraRate)   _invioDatiFast.setPeriod(extraRate);
+
+				return comando + DUM_SEPARATORE + parametro + DUM_SEPARATORE + risposta;
+				};
 
 
 
@@ -215,7 +232,6 @@ bool MysticDum::aggiornaStato() {
 	// lo scopo di questa funzione è leggere lo stato di tutti i sensori e metterli a disposizione
 	// legge posizione pwmcom es 	// temperatura, umidità, etc
 
-
 	M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.aggiornastato()   -------------    ");
 
 	Process p;
@@ -228,7 +244,7 @@ bool MysticDum::aggiornaStato() {
 	_temperature = getTemperature();
 	_humidity = getHumidity();
 	_luminosity = getLuminosity();
-	_switch1 = getSwitchStatus();
+	_switch1 = getSwitchStatus(); //status dello switch
 
 	_parametri.setValue("UpTime", ( now / 1000));
 	_parametri.setValue("Temperature", _temperature);
@@ -236,6 +252,9 @@ bool MysticDum::aggiornaStato() {
 	_parametri.setValue("Luminosity", _luminosity);
 	_parametri.setValue("LuminosityThreshold", _luminosityThreshold);
 	_parametri.setValue("Switch1", _switch1);
+	_parametri.setValue("SwitchMode", _relayMode);
+	//attuo il comando sull'HW
+	setSwitch(RELAYPIN, _relayMode);
 
 	
 /*	stato = (cicli) % 4;
@@ -435,6 +454,12 @@ float MysticDum::getRandomFloatValue(int min, int max){
 	float val = float(random(min, max));
 	return val;
 }
+
+void MysticDum::setSwitch(int relpin,boolean mode ){
+	digitalWrite(relpin, mode);
+	delay(500);
+}
+
 
 /*
 void MysticDum::statoStop()

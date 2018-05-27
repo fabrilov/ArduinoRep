@@ -26,17 +26,18 @@
 //#define SIMUL_NOME_FILE_TMP						"dati.tmp"								// File temporaneo che memorizza i dati per il sito locale
 //#define SIMUL_NOME_FILE_DATI_TO_WEB				"data_to_cs.json"						// File definitivo dove sono memoriazzati i dati per il sito locale
 #define SIMUL_MAX_CAR_TO_BRIDGE 250											// numero massimo di caratteri che possono arrivare dal Bridge
-#define SIMUL_TOTAL_N_OF_REG	 8  // definizione grandezza del buffer dove sono memomorizzati i dati,  numero parametri da trattare
+#define SIMUL_TOTAL_N_OF_REG	 9  // definizione grandezza del buffer dove sono memomorizzati i dati,  numero parametri da trattare
 #define SIMUL_NOMECONFIGURAZIONE	   "MysticDum"
 
 
 //inserire define dei pin da usare
 //sensore DHT
-#define DHTPIN 7
+#define DHTPIN 23
 #define DHTTYPE DHT22
 //sensore LDR
 #define LDRPIN A0
-
+//RELAY
+#define RELAYPIN 22
 
 
 #ifndef MysticDum_h
@@ -87,7 +88,7 @@ private:
 		Aggiungere parametri non richiede conosceli.
 	*/
 	String label_for_cs[SIMUL_TOTAL_N_OF_REG] PROGMEM = 
-	{"Switch1","Luminosity","Temperature","Humidity","LuminosityThreshold",
+	{"Switch1","SwitchMode","Luminosity","Temperature","Humidity","LuminosityThreshold",
 	 "UpTime", "SampleRate","Reboot"};
 
 
@@ -114,13 +115,12 @@ protected:
 private:
 	int getRandomIntValue(int min, int max);						// Stato Casuale
 	float getRandomFloatValue(int min, int max);
-	//void statoStop();
 	void inviaStati();
-	//void leggiCorrenti();
 	float getTemperature();
 	float getHumidity();
 	int getLuminosity();
 	int getSwitchStatus();
+	void setSwitch(int, boolean ); //per attivare il relay
 
 	//variabili corrispondenti alle etichette dei parametri del dum
 	boolean _switch1;
@@ -128,13 +128,14 @@ private:
 	float _temperature; //Stores temperature value
 	int _luminosity; //Stores ldr luminosity value
 	int _luminosityThreshold; //soglia di luminosità impostabile che sarà scritta su FS
+	boolean _relayMode;
 	boolean _connectedToBridge;
 
 
 /*	int _pinA, _pinB, _pinC, _pinR, _pinN, _pinOutI1, _pinOutI2, _pinCorrentePompaA, _pinCorrentePompaB;
 	int _pinTastoPompaA, _pinTastoPompaB;
-*/
-/*	int _pinA = 3;
+
+	int _pinA = 3;
 	int _pinB = 4;
 	int _pinC = 5;
 	int _pinR = 6;
