@@ -292,6 +292,7 @@ void MysticDum::sendDataToCs() {
 	}
 };
 
+// riceviMessaggi e processMessage servono solo per la DConnectBox non per i dum
 #if 0
 void MysticDum::riceviMessaggi() {
 		M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.riceviMessaggi()  -----------------");
