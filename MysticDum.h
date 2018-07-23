@@ -15,19 +15,103 @@
 #define SIMUL_NONVALIDO   "-1"
 #define SIMUL_STRING_NOT_VALID_VALUE "null"	// stringa che si invia nel caso il valore letto non sia valido
 
+//TODO: ridefinire richiesta seriale se non già presente in eeprom al dabmgr, utilizzare come modello qst parte di codice
 
+ #if 0
+int DumMaster::exec(String* command)
+{
+	String parameters[2];
+	String tmpCommand;
+
+	DBG_PRINTF("Comando ricevuto dal lato linux (dentro DumMaster::exec: %s)\n", command->c_str());
+
+	/* Formato richiesta da CS:
+
+                ID_richiesta/ID_device/Command/parametro_1/parametro_2/../parametro_n
+
+                La risposta verso il centro servizi e:
+                ID_richiesta/ID_device/risposa/parametro_1/parametro_2/../parametro_n
+
+                risposta contiene:
+                1) Il comando ricevuto se si è riusciti ad elaborare il comando
+                2) una stringa per il tipo di errore generato.
+                parametro_1.. paramentro_n
+                i dati ricevuti per questo parametro.
+	 */
+
+	// fino a 2 per separare ID_richiesta/ID_device/
+	parameters[0] = command->substring(0, command->indexOf('/'));
+	tmpCommand = command->substring(command->indexOf('/') + 1);
+	parameters[1] = tmpCommand.substring(0, tmpCommand.indexOf('/'));
+	tmpCommand = tmpCommand.substring(tmpCommand.indexOf('/') + 1);
+
+	char ser[128];
+	if (parameters[1] == "Inventory") {
+		if (!get_serial(ser, 0)) {
+			String risposta = "";
+			getInventory(risposta);
+			risposta = parameters[0] + risposta;
+			DBG_PRINTF("Risposta ad Inventory:  %s\n", risposta.c_str());
+			Mailbox.writeMessage(risposta);
+			inventory_resp = 1;
+		} else {
+			// if (id_inventory)
+			// delete id_inventory;
+			// id_inventory = new String(parameters[0]);
+			//  Bridge.put("NewSerial", "ebox_ser");
+			printf("get(NewSerial)\n");
+			int len;
+			S32 getTimer = K_TIMER_SetTimer(0);
+			while(1) {
+				long_wait = 15000 * 10;
+				if (K_TIMER_TestTimer(getTimer)) {
+					printf(".");
+					getTimer = K_TIMER_SetTimer(50);
+					if (Bridge.get("NewSerial", ser, sizeof(ser) - 1)!=0xFFFF) {
+						if ((len=strlen(ser))>4) {
+							if (strcmp(ser, "Overflow")!=0) {
+								get_serial(ser, len+1);
+								Mailbox.writeMessage(parameters[0] + "/" + ser);
+								DBG_PRINTF("Risposta ad inventory:  %s\n", (parameters[0] + "/" + ser).c_str());
+								inventory_resp = 1;
+							}
+							break;
+						} else if (len!=0)
+							break;
+					} else
+						break;
+				}
+				K_WD_ForeGroundCheck();
+			}
+		}
+		return 0;
+	}
+
+	if (parameters[1] == *serial) {
+		if (tmpCommand == "UpdateReady") {
+			Mailbox.writeMessage(parameters[0] + "/" + parameters[1] + "/" + tmpCommand);
+			update_DUM = UPDATE_PRESENT;
+			return 0;
+		}
+		// GlobalRequests.insert_request(parameters[0].c_str());
+		::doCmd(parameters[0], tmpCommand);
+	} else
+		Mailbox.writeMessage(parameters[0] + "/" + tmpCommand + String("/INVALID COMMAND"));
+	return -1;
+}
+#endif
+
+
+
+// TODO: valutare se necessari qst file di configurazione di appoggio
 #define SIMUL_FILESTORAGEPARAMETRI				"/evoplus/storageConfiguration.txt"
-#define SIMUL_FILESTORAGEPARAMETRIRETE			"/var/tmp/dboxInfo.txt"
-//#define SIMUL_IPSCRIPT							"/evoplus/scripts/copyInfo.sh"          // non usato
-#define SIMUL_PERCORSOCONFIGURAZIONE			"/evoplus/configurazione/pwmCom_1_0"
-#define SIMUL_SENDLOGSH							"/evoplus/scripts/sendlog.sh"
+//#define SIMUL_FILESTORAGEPARAMETRIRETE			"/var/tmp/dboxInfo.txt"
+//TODO correggere define
 #define SIMUL_SENDDATATICS						"to_cs_usb.sh"							// Script per l'invio dati su CS. gli script sono relativi e si trovano in /evolpus/scripts 
 #define SIMUL_NOME_FILE_CS_TXT					"data_to_cs.txt"						// File che contiene i dati da inviare al CS
-//#define SIMUL_NOME_FILE_TMP						"dati.tmp"								// File temporaneo che memorizza i dati per il sito locale
-//#define SIMUL_NOME_FILE_DATI_TO_WEB				"data_to_cs.json"						// File definitivo dove sono memoriazzati i dati per il sito locale
-#define SIMUL_MAX_CAR_TO_BRIDGE 250											// numero massimo di caratteri che possono arrivare dal Bridge
-#define SIMUL_TOTAL_N_OF_REG	 10  // definizione grandezza del buffer dove sono memomorizzati i dati,  numero parametri da trattare
-#define SIMUL_NOMECONFIGURAZIONE	   "MysticDum"
+#define SIMUL_MAX_CAR_TO_BRIDGE 250	 // numero massimo di caratteri verso il Bridge
+#define SIMUL_TOTAL_N_OF_REG	 10  // numero parametri da trattare
+#define SIMUL_NOMECONFIGURAZIONE	   "MysticDum" //deve tornare con l configurazione inserita nel CS
 
 
 //inserire define dei pin da usare
@@ -80,13 +164,7 @@ class MysticDum : public Dum
 {
 
 private:
-	/* i dati di label for_cs sono organizzati in questo modo
-		all'inizio i dati prelevati dalla parte linux
-		Alla fine i dati prelevati dalla parte embedded.
 
-		In questo modo l'aggiornamento dei dati si fa con un semplice for, 
-		Aggiungere parametri non richiede conosceli.
-	*/
 	String label_for_cs[SIMUL_TOTAL_N_OF_REG]  = 
 	{"Switch1","SwitchMode","Luminosity","Temperature","PerceivedTemperature","Humidity","LuminosityThreshold",
 	 "UpTime", "SampleRate","Reboot"};
@@ -99,17 +177,20 @@ public:
 
 	virtual void begin();
 	virtual bool aggiornaStato(); 						// legge tutti i registri definiti dallo slave
-	virtual String processCommand(String);				// elabora e risponde ad un comando del DAB CS o del sito web
+	virtual String processCommand(String);				// elabora e risponde ad un comando dal dabmgr
+
+	//TODO: di base, a riposo, ha un sample rate di 30sec, quando interagisco con il DUM passa a 5 sec per un tempo di 2 min
 	unsigned long int getSampleRate();					// funzione per prelevare il sample rate in miilisecondi
-	String leggiParametroStringSuFile(String Parametro);            // Funzione per leggere il parametro Stringa sul file system linux
+	String leggiParametroStringSuFile(String Parametro);   // Funzione per leggere il parametro Stringa sul file system linux
 	void sendDataToCs();								// prepara i dati e li invia al centro servizi
-	void riceviMessaggi();								// riceve i messaggi dal centro servizzi li passa a processMessage
+	void riceviMessaggi();								// riceve i messaggi dal centro servizi li passa a processMessage
+	// NON necessaro se non ci sono altri dum collegati
 	String processMessage(String message);				// Risponde alle richieste base: inventory, setparam, se riguardano un altro dum smista la richiesta al dum corretto
 
 protected:
 	String _fileStorageParametri = SIMUL_FILESTORAGEPARAMETRI;
-	String _fileStorageParametriRete = SIMUL_FILESTORAGEPARAMETRIRETE;
-	String _fileConfigurazionePwmCom = SIMUL_PERCORSOCONFIGURAZIONE;
+	//String _fileStorageParametriRete = SIMUL_FILESTORAGEPARAMETRIRETE;
+	//String _fileConfigurazionePwmCom = SIMUL_PERCORSOCONFIGURAZIONE;
 
 private:
 	int getRandomIntValue(int min, int max);						// Stato Casuale
@@ -133,4 +214,4 @@ private:
 	boolean _connectedToBridge;
 };
 
-#endif  //pwmcom_ver_1.0_H
+#endif

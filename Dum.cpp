@@ -1,10 +1,3 @@
-/*
-  LBA
-
- Affinche tutto funzioni serve che venga inizializzata una variabile di tipo node.
-
-*/
-
 #include "Dum.h"
 
 
@@ -156,6 +149,7 @@ int Dum::unsignet_to_int(uint16_t u){
 	else return u;
 
 }
+//TODO: vedere modello fatto da Giovanni nell'header di qst oggetto
 
 String Dum::catgrepString(String cat ,String grep){
 /*
@@ -188,7 +182,9 @@ Si deve usare questo script perchÃ¨ non funziona con p.run la redirezione dell
     return result;
     
 }
+//TODO: vedere modello fatto da Giovanni nell'header di qst oggetto
 String Dum::catgrepInt(String cat ,String grep){
+
 /*
 La funzione fa il cat ed il grep, esegue lo script seguente:
 
@@ -205,6 +201,7 @@ fi
 
 Si deve usare questo script perchÃ¨ non funziona con p.run la redirezione dell'output, quindi | > >> etc...
 */
+
    String command= DUM_CATEGREPSCRIPS + cat + " " + grep ;
    String result="";
    char c;

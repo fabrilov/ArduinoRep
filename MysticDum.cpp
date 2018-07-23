@@ -8,7 +8,6 @@ MysticDum::MysticDum()
 {
 	_numParametri = SIMUL_TOTAL_N_OF_REG;
 	_fileStorageParametri = SIMUL_FILESTORAGEPARAMETRI;
-	_fileStorageParametriRete = SIMUL_FILESTORAGEPARAMETRIRETE;
 	_connectedToBridge = false;
 
 	_temperature = 0; //valori dei sensori
