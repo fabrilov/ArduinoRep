@@ -12,7 +12,7 @@
 #define SIMUL_MAX_PARAMETERS_FROM_CS 10       // numero massimo di parametri che possono arrivare dal centro servizi                                
 #define SIMUL_HIDDEN		"h"					// valore che nasconde il widget
 #define SIMUL_DISABLE		"d"					// valore disabilita il widget
-#define SIMUL_NONVALIDO   "-1"
+#define SIMUL_NONVALIDO     "-1"
 #define SIMUL_STRING_NOT_VALID_VALUE "null"	// stringa che si invia nel caso il valore letto non sia valido
 
 //TODO: ridefinire richiesta seriale se non già presente in eeprom al dabmgr, utilizzare come modello qst parte di codice
@@ -104,7 +104,7 @@ int DumMaster::exec(String* command)
 
 
 // TODO: valutare se necessari qst file di configurazione di appoggio
-#define SIMUL_FILESTORAGEPARAMETRI				"/evoplus/storageConfiguration.txt"
+#define DUM_FILESTORAGEPARAMETRI				"/evoplus/storageConfiguration.txt"
 //#define SIMUL_FILESTORAGEPARAMETRIRETE			"/var/tmp/dboxInfo.txt"
 //TODO correggere define
 #define SIMUL_SENDDATATICS						"to_cs_usb.sh"							// Script per l'invio dati su CS. gli script sono relativi e si trovano in /evolpus/scripts 
@@ -183,14 +183,14 @@ public:
 	unsigned long int getSampleRate();					// funzione per prelevare il sample rate in miilisecondi
 	String leggiParametroStringSuFile(String Parametro);   // Funzione per leggere il parametro Stringa sul file system linux
 	void sendDataToCs();								// prepara i dati e li invia al centro servizi
-	void riceviMessaggi();								// riceve i messaggi dal centro servizi li passa a processMessage
-	// NON necessaro se non ci sono altri dum collegati
-	String processMessage(String message);				// Risponde alle richieste base: inventory, setparam, se riguardano un altro dum smista la richiesta al dum corretto
+
+	// Serve per la DConnect BOX, NON necessario se non ci sono altri dum collegati
+	// void riceviMessaggi();								// riceve i messaggi dal centro servizi li passa a processMessage
+	// String processMessage(String message);				// Risponde alle richieste base: inventory, setparam, se riguardano un altro dum smista la richiesta al dum corretto
 
 protected:
-	String _fileStorageParametri = SIMUL_FILESTORAGEPARAMETRI;
-	//String _fileStorageParametriRete = SIMUL_FILESTORAGEPARAMETRIRETE;
-	//String _fileConfigurazionePwmCom = SIMUL_PERCORSOCONFIGURAZIONE;
+	String _fileStorageParametri = DUM_FILESTORAGEPARAMETRI;
+
 
 private:
 	int getRandomIntValue(int min, int max);						// Stato Casuale

@@ -7,7 +7,7 @@ DHT dht(DHTPIN, DHTTYPE);
 MysticDum::MysticDum()
 {
 	_numParametri = SIMUL_TOTAL_N_OF_REG;
-	_fileStorageParametri = SIMUL_FILESTORAGEPARAMETRI;
+	_fileStorageParametri = DUM_FILESTORAGEPARAMETRI;
 	_connectedToBridge = false;
 
 	_temperature = 0; //valori dei sensori
@@ -46,7 +46,7 @@ void MysticDum::begin() {
 
 	//  inizializzazione parametri
 	_parametri.begin(label_for_cs, _numParametri);
-	_fileStorageParametri = SIMUL_FILESTORAGEPARAMETRI;
+	_fileStorageParametri = DUM_FILESTORAGEPARAMETRI;
 	
 	// Inizializzazione Bridge
 	Bridge.begin(250000);
@@ -292,6 +292,7 @@ void MysticDum::sendDataToCs() {
 	}
 };
 
+#if 0
 void MysticDum::riceviMessaggi() {
 		M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.riceviMessaggi()  -----------------");
 		String message = "";
@@ -315,6 +316,7 @@ void MysticDum::riceviMessaggi() {
 		
 		M_CAFFE_INOUT_PRINTLN("Uscita Macchinetta caffe.riceviMessaggi()");
 };
+
 
 
 String MysticDum::processMessage(String message) {
@@ -366,6 +368,10 @@ String MysticDum::processMessage(String message) {
 	return "no_risposta_2";
 
 }
+#endif
+
+
+
 
 //inserire logica di controllo per dht22 per esempio per tararlo correttamente
 float  MysticDum::getTemperature(){
