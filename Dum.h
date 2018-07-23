@@ -1,10 +1,3 @@
-/*
-  LBA
-
-  Classe per la gestione de Dum
-*/
-//
-
 #ifndef DUM_H
 #define DUM_H
 //#include <malloc.h>
@@ -25,12 +18,6 @@
 #endif
 
 
-#define DUM_DHTPIN 11
-#define DUM_DHTTYPE DHT22
-#define DUM_SENSOREDISTANZATRIGGERPORT 57
-#define DUM_SENSOREDISTANZAECHOPORT    58
-#define DUM_INVIODATIFAST 120000
-
 #define DUM_TOTAL_N_OF_REG_OF_DUM 1         // definizione grandezza del buffer dove sono memomorizzati i dati
 #define DUM_MAX_PARAMETERS_FROM_CS 10       // numero massimo di parametri che possono arrivare dal centro servizi                                
 #define DUM_NOT_READ_VALUE   "null"         // valore non letto - Preset con un valore che non si leggerÃ  mail
@@ -44,7 +31,7 @@
 class Dum {
   public:
     Dum();
-	virtual ~Dum(); 									// distruttore da impplentare
+	virtual ~Dum();
 
 // funzioni Virtuale da implementare in ogni singolo DUM   
 
@@ -56,15 +43,12 @@ class Dum {
 
 	String dataToCS(String seriale);					//Genera il json con tutti i dati del dum
 	String dataToCS();									//Genera il json con tutti i dati del sum, usa il codice seriale mem in _seriale
-														// legge tutti i registri definiti dallo slave
-    											// prepara una stringa da inviare al centro servizi
-
 	String getSerial();
 	void setSerial(String);
 	void setNameConf(String);
 	void resetData();
 	void setSampleRate(int sampleRate);
-	void setParameter(String parametro, String valore);				// salva su _parametri(parametri,valore) serve per accedere a parametri
+	void setParameter(String parametro, String valore);		// salva su _parametri(parametri,valore) serve per accedere a parametri
 	int  stringToInt(String parametro);
 
 //	Funzioni generiche per leggere dati dal file system linux. Potenti ma lente 
@@ -92,9 +76,7 @@ protected:
 	PseudoTimer _invioDatiFast;
 	String _nomeConfigurazione;
 
-private:
 
-	String label_for_cs[DUM_TOTAL_N_OF_REG_OF_DUM] PROGMEM = { "UpTime" };           // definizione grandezza del buffer dove sono memomorizzati i dati
 };
 
 

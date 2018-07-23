@@ -12,6 +12,7 @@ MysticDum::MysticDum()
 	_connectedToBridge = false;
 
 	_temperature = 0; //valori dei sensori
+	_temperaturePerceived=0;
 	_humidity = 0;
 	_luminosity = 0;
 	_luminosityThreshold=28;
@@ -22,14 +23,7 @@ MysticDum::MysticDum()
 	pinMode(LDRPIN, INPUT);
 	pinMode(RELAYPIN, OUTPUT);
 	digitalWrite( RELAYPIN, LOW ); //lo metto allo stato basso all'inzializzazione
-/*
-	_errorePompaA = false;
-	_errorePompaB = false;
-	_TriggerCorrentePompaA = 30;
-	_TriggerCorrentePompaB = 30;
-	*/
 
-//	cicli = 0;
 }
 
 
@@ -88,9 +82,7 @@ void MysticDum::begin() {
 	//legge da filesystem il valore del parametro, lo usa anche come archiviazione della soglia stessa
 	_luminosityThreshold = getValueFromKey(_fileDati, "LuminosityThreshold").toInt();
 	_relayMode = getValueFromKey(_fileDati, "SwitchConfig").toInt();
-
-	//_TriggerCorrentePompaA = getValueFromKey(_fileDati, "TriggerCorrentePompaA").toInt();
-	//_TriggerCorrentePompaB = getValueFromKey(_fileDati, "TriggerCorrentePompaB").toInt();
+	//per attualizzare i valori pendendoli dai sensori
 	aggiornaStato();
 }
 
@@ -178,7 +170,6 @@ String MysticDum::processCommand(String message) {
 				_invioDatiFast.start();
 				unsigned long extraRate = getSampleRate() * 3;
 				if (_invioDatiFast.getPeriod() < extraRate)   _invioDatiFast.setPeriod(extraRate);
-
 				return comando + DUM_SEPARATORE + parametro + DUM_SEPARATORE + risposta;
 				};
 
@@ -237,17 +228,18 @@ bool MysticDum::aggiornaStato() {
 	Process p;
 	String supp, result, chiave, valore;
 	unsigned long now = millis();
-	//_errorePompaA = false;
-	//_errorePompaB = false;
+
 
 	//attualizzo il valore e chimao la setvalue
 	_temperature = getTemperature();
+	_temperaturePerceived=getTemperaturePerceived();
 	_humidity = getHumidity();
 	_luminosity = getLuminosity();
 	_switch1 = getSwitchStatus(); //status dello switch
 
 	_parametri.setValue("UpTime", ( now / 1000));
 	_parametri.setValue("Temperature", _temperature);
+	_parametri.setValue("TemperaturePerceived", _temperaturePerceived);
 	_parametri.setValue("Humidity", _humidity);
 	_parametri.setValue("Luminosity", _luminosity);
 	_parametri.setValue("LuminosityThreshold", _luminosityThreshold);
@@ -255,49 +247,6 @@ bool MysticDum::aggiornaStato() {
 	_parametri.setValue("SwitchMode", _relayMode);
 	//attuo il comando sull'HW
 	setSwitch(RELAYPIN, _relayMode);
-
-	
-/*	stato = (cicli) % 4;
-	//watchdogReset();
-
-	if (stato == 0) {
-		generaValoriRandom();
-		inviaStati();
-		delay(6000);
-	}
-	if (stato == 2) {
-		statoStop();
-		inviaStati();
-		delay(6000);
-	}
-	
-	//watchdogReset();
-	leggiCorrenti();
-	_parametri.setValue("IngressoR",R);
-	_parametri.setValue("IngressoA",A);
-	_parametri.setValue("IngressoB",B);
-	_parametri.setValue("IngressoC",C);
-	_parametri.setValue("IngressoN",N);
-	_parametri.setValue("Iout 1", Iout1);
-	_parametri.setValue("Iout 2", Iout2);
-
-	_parametri.setValue("CorrentePompaA", _correnteA);
-	_parametri.setValue("CorrentePompaB", _correnteB);
-	_parametri.setValue("Cicli", cicli);
-	_parametri.setValue("TastoPompaA", TastoPompaA);
-	_parametri.setValue("TastoPompaB", TastoPompaB);
-	if ((stato == 0) || (stato ==1)) 	_parametri.setValue("stato", 0);
-	else _parametri.setValue("stato", 1);
-	if ((stato == 2) || (stato == 3)) {
-		if (_correnteA > _TriggerCorrentePompaA ) _errorePompaA = true;
-		if (_correnteB > _TriggerCorrentePompaB) _errorePompaB = true;
-	}
-	_parametri.setValue("ErrorePompaA", _errorePompaA);
-	_parametri.setValue("ErrorePompaB", _errorePompaB);
-	_parametri.setValue("TriggerCorrentePompaB", _TriggerCorrentePompaB);
-	_parametri.setValue("TriggerCorrentePompaA", _TriggerCorrentePompaA);
-	cicli++;
-*/
 	return true;
 }
 
@@ -426,6 +375,12 @@ float  MysticDum::getTemperature(){
 	 return temp;
 }
 
+float MysticDum::getTemperaturePerceived(){
+	// Compute heat index in Celsius (isFahreheit = false)
+	float tperc = dht.computeHeatIndex(getTemperature(), getHumidity(), false);
+	return tperc;
+}
+
 float MysticDum::getHumidity(){
 	float hum = dht.readHumidity();
 	//int hum = getRandomIntValue(60, 95);
@@ -433,9 +388,13 @@ float MysticDum::getHumidity(){
 }
 
 int MysticDum::getLuminosity(){
-	 int lum = analogRead(LDRPIN);
-	//int lum = getRandomIntValue(1, 100);
-	return lum;
+	 // formula Lux=500/Rldr (in kOhm)
+	 int pcellReading = analogRead(LDRPIN); // analog reading
+	 float Res=10.0; // // Resistance in the circuit of sensor 0 (KOhms)
+	 float Vout0 = pcellReading*0.003222656; // 3.3V/1024
+	 //int lum=500/(Res*((3.3-Vout)/Vout)); //use this equation if the LDR is in the upper part of the divider
+	 int lum = (1650/Vout0-500)/Res;
+   	 return lum;
 }
 
 int MysticDum::getSwitchStatus(){
@@ -461,34 +420,6 @@ void MysticDum::setSwitch(int relpin,boolean mode ){
 }
 
 
-/*
-void MysticDum::statoStop()
-{
-	A = 0; B = 0; C =0;
-	N = 0; R = 1;
-	Iout1 = 1;
-	Iout2 = 1;
-}
-
-*/
-
-/*                    QUI ATTUOvGLI STATI
-void MysticDum::inviaStati()
-{
-	digitalWrite(_pinA, A); 	digitalWrite(_pinB, B); digitalWrite(_pinC, C); 
-	digitalWrite(_pinR, R); digitalWrite(_pinN, N);
-	digitalWrite(_pinOutI1, Iout1); digitalWrite(_pinOutI2, Iout2);
-
-	if (stato == 0) {
-		digitalWrite(_pinTastoPompaA, TastoPompaA);
-		digitalWrite(_pinTastoPompaB, TastoPompaB);
-		delay(500);
-		digitalWrite(_pinTastoPompaA, 0);
-		digitalWrite(_pinTastoPompaB, 0);
-	}
-}
-
-*/
 
 
 

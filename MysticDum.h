@@ -5,7 +5,7 @@
 #include "Parametri.h"
 #include "Dum.h"
 
-#include <Wire.h> //per sensore 12c es. giroscopio/accelerometro
+#include <Wire.h> //per sensore I2C es. giroscopio/accelerometro
 #include "DHT.h" // sensore temp. umidità DHT 21  (AM2301)
 
 //#define SIMUL_INVIODATIFAST 120000
@@ -26,7 +26,7 @@
 //#define SIMUL_NOME_FILE_TMP						"dati.tmp"								// File temporaneo che memorizza i dati per il sito locale
 //#define SIMUL_NOME_FILE_DATI_TO_WEB				"data_to_cs.json"						// File definitivo dove sono memoriazzati i dati per il sito locale
 #define SIMUL_MAX_CAR_TO_BRIDGE 250											// numero massimo di caratteri che possono arrivare dal Bridge
-#define SIMUL_TOTAL_N_OF_REG	 9  // definizione grandezza del buffer dove sono memomorizzati i dati,  numero parametri da trattare
+#define SIMUL_TOTAL_N_OF_REG	 10  // definizione grandezza del buffer dove sono memomorizzati i dati,  numero parametri da trattare
 #define SIMUL_NOMECONFIGURAZIONE	   "MysticDum"
 
 
@@ -44,7 +44,7 @@
 #define MysticDum_h
 
 
-//#define PWMCOM_Macchinetta_Caffe_DEBUG true
+//#define MysticDum_h_DEBUG true
 
 #ifdef MysticDum_h_DEBUG
 #define _DEB_PRINT(x)   SerialUSB.print(x);
@@ -87,14 +87,13 @@ private:
 		In questo modo l'aggiornamento dei dati si fa con un semplice for, 
 		Aggiungere parametri non richiede conosceli.
 	*/
-	String label_for_cs[SIMUL_TOTAL_N_OF_REG] PROGMEM = 
-	{"Switch1","SwitchMode","Luminosity","Temperature","Humidity","LuminosityThreshold",
+	String label_for_cs[SIMUL_TOTAL_N_OF_REG]  = 
+	{"Switch1","SwitchMode","Luminosity","Temperature","PerceivedTemperature","Humidity","LuminosityThreshold",
 	 "UpTime", "SampleRate","Reboot"};
 
 
 
 public:
-
 	MysticDum();
 	virtual ~MysticDum();
 
@@ -117,6 +116,7 @@ private:
 	float getRandomFloatValue(int min, int max);
 	void inviaStati();
 	float getTemperature();
+	float getTemperaturePerceived();
 	float getHumidity();
 	int getLuminosity();
 	int getSwitchStatus();
@@ -126,33 +126,11 @@ private:
 	boolean _switch1;
 	float _humidity;  //Stores humidity value
 	float _temperature; //Stores temperature value
+	float _temperaturePerceived;
 	int _luminosity; //Stores ldr luminosity value
 	int _luminosityThreshold; //soglia di luminosità impostabile che sarà scritta su FS
 	boolean _relayMode;
 	boolean _connectedToBridge;
-
-
-/*	int _pinA, _pinB, _pinC, _pinR, _pinN, _pinOutI1, _pinOutI2, _pinCorrentePompaA, _pinCorrentePompaB;
-	int _pinTastoPompaA, _pinTastoPompaB;
-
-	int _pinA = 3;
-	int _pinB = 4;
-	int _pinC = 5;
-	int _pinR = 6;
-	int _pinN = 7;
-	int _pinOutI1 = 10;
-	int _pinOutI2 = 11;
-	int _pinCorrentePompaA = 0;
-	int _pinCorrentePompaB = 1;
-	int _pinTastoPompaA = 44;
-	int _pinTastoPompaB = 45;
-
-	//definizione delle variabili corrispondent alle etichette dei dum
-	byte A, B, C, R, N, Iout1, Iout2, TastoPompaA, TastoPompaB;
-	unsigned long UpTime, _correnteA, _correnteB, _TriggerCorrentePompaA, _TriggerCorrentePompaB;
-	unsigned long cicli, stato;
-	boolean _errorePompaA, _errorePompaB;
-*/
 };
 
 #endif  //pwmcom_ver_1.0_H
