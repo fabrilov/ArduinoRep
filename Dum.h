@@ -18,17 +18,17 @@
 #endif
 
 
-#define DUM_TOTAL_N_OF_REG_OF_DUM 1         // definizione grandezza del buffer dove sono memomorizzati i dati
+//#define DUM_TOTAL_N_OF_REG_OF_DUM 1         // definizione grandezza del buffer dove sono memomorizzati i dati
 //#define DUM_MAX_PARAMETERS_FROM_CS 10       // numero massimo di parametri che possono arrivare dal centro servizi
 //#define DUM_NOT_READ_VALUE   "null"         // valore non letto - Preset con un valore che non si leggera'  mai
 //#define DUM_NOT_VALID_VALUE "null"          // valore letto ma che non ha senso
 //#define DUM_STRING_NOT_VALID_VALUE "null"   // stringa che si invia nel caso il valore letto non sia valido
 //TODO: OTTIMIZZARE il separatore
 #define DUM_SEPARATORE "/"                  // definizione separatore fra parametri in arrivo e mandati verso il centro servizi
-//TODO: controllare dove già definito il percorso ad es nell' header del dumstesso, definire uan sola volta
+//TODO: controllare dove già definito il percorso ad es nell' header del dum stesso, definire una sola volta
 #define DUM_FILESTORAGEPARAMETRI			"/evoplus/storageConfiguration.txt"
 //TODO verificare i percorsi del DUM
-#define DUM_CATEGREPSCRIPS					"/evoplus/scripts/catgrep.sh "
+#define DUM_CATEGREPSCRIPTS					"/evoplus/scripts/catgrep.sh "
 
 
 class Dum {
@@ -166,9 +166,9 @@ protected:
 	PseudoTimer _invioDatiFast;
 	String _nomeConfigurazione;
 
-private:
+// private:
 
-	String label_for_cs[DUM_TOTAL_N_OF_REG_OF_DUM]  = { "UpTime" };           // definizione grandezza del buffer dove sono memomorizzati i dati
+	// String label_for_cs[DUM_TOTAL_N_OF_REG_OF_DUM]  = { "UpTime" };           // definizione grandezza del buffer dove sono memomorizzati i dati
 };
 
 

@@ -172,7 +172,7 @@ Si deve usare questo script perchÃ¨ non funziona con p.run la redirezione dell
 
 
   
-      String command= DUM_CATEGREPSCRIPS + cat + " " + grep ;
+      String command= DUM_CATEGREPSCRIPTS + cat + " " + grep ;
       String result="";
       Process p; 
       p.runShellCommand(command);
@@ -202,7 +202,7 @@ fi
 Si deve usare questo script perchÃ¨ non funziona con p.run la redirezione dell'output, quindi | > >> etc...
 */
 
-   String command= DUM_CATEGREPSCRIPS + cat + " " + grep ;
+   String command= DUM_CATEGREPSCRIPTS + cat + " " + grep ;
    String result="";
    char c;
    Process p; 

@@ -29,17 +29,19 @@ void sendDataToCs() {
 	SerialUSB.println(" SendDataToCS UScita");
 	};
 
-
+/*
 void riceviMessaggi() {
 	SerialUSB.print("ingresso riceviMessaggi ---");
 	MysticBox.riceviMessaggi();
 	SerialUSB.println(" riceviMessaggi UScita");
 };
+*/
+
 void watchdogSetup(void) {}; // funzione necessaria per l'aggiornaemnto Watchdog
 
 
 PseudoTimer timerInvioDatiCs(T_INVIO_DATI_CS, sendDataToCs);
-PseudoTimer timerRicezioneMessaggi(T_RICEVI_MESSAGGI, riceviMessaggi);
+//PseudoTimer timerRicezioneMessaggi(T_RICEVI_MESSAGGI, riceviMessaggi);
 
 
 
@@ -72,7 +74,7 @@ void setup()
 	timerInvioDatiCs.start();
 	sendDataToCs();
 	//timerInvioDatiSito.start();
-	timerRicezioneMessaggi.start();
+	//timerRicezioneMessaggi.start();
 }
 
 void loop()
@@ -80,6 +82,6 @@ void loop()
 	watchdogReset();
 	timerInvioDatiCs.testAndExecute();
 	watchdogReset();
-	timerRicezioneMessaggi.testAndExecute();
+	//timerRicezioneMessaggi.testAndExecute();
 	watchdogReset();
 }

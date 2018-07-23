@@ -91,15 +91,6 @@ int Parametri::setValueWithDoubleQuote(String parametro, String valore) {
 return  setValue(parametro, '"' + valore + '"');
 }
 
-int Parametri::setValueAutoQuote(String parametro, String valore)
-{
-	String valoreTrimmato = valore;
-	valoreTrimmato.trim();
-
-	if (String(valoreTrimmato.toDouble())==valoreTrimmato) return setValue(parametro,valoreTrimmato);
-	else return setValueWithDoubleQuote(parametro, valoreTrimmato);
-
-}
 
 
 void Parametri::resetData() {

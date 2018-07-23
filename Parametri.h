@@ -21,9 +21,8 @@ public:
    ~Parametri();
 
    int setValue(String parametro,String valore);
-   int setValue(String parametro, long valore);
-   int setValueWithDoubleQuote(String parametro, String valore);
-   int setValueAutoQuote(String parametro, String valore);
+   int setValue(String parametro, long valore); // es. "param1": 35
+   int setValueWithDoubleQuote(String parametro, String valore); // es. "param1": "Active"
    String getValue(String parametro);
    String getValueIJson(int i);
    int getOrdinaleParametro(String parametro);
@@ -38,4 +37,3 @@ private:
 
 
 #endif
-
