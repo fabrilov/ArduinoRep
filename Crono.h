@@ -39,7 +39,7 @@ Si basa su una programmazione settimanale.
 #define MAXPROGRAMMIGIORNALIERI 3
 #define NUMEROPROGRAMMI  (8*MAXPROGRAMMIGIORNALIERI)
 
-//TODO: adesso si usa il getNTPTime perchè fornito dal dabmgr
+//TODO: adesso si usa il getNTPTime perchè fornito dal dabmgr >9.3 non uo script fatto ad hoc
 #define SCRIPTORARIO "raspyNtp.py"										// programma che prende il tempo, se tempo non valido restituisce -1
 #define CHIAVETEMPO "NtpTime"
 

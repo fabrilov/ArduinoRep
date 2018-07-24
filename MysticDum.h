@@ -8,7 +8,6 @@
 #include <Wire.h> //per sensore I2C es. giroscopio/accelerometro
 #include "DHT.h" // sensore temp. umidità DHT 21  (AM2301)
 
-//#define SIMUL_INVIODATIFAST 120000
 #define SIMUL_MAX_PARAMETERS_FROM_CS 10       // numero massimo di parametri che possono arrivare dal centro servizi                                
 #define SIMUL_HIDDEN		"h"					// valore che nasconde il widget
 #define SIMUL_DISABLE		"d"					// valore disabilita il widget
@@ -105,7 +104,6 @@ int DumMaster::exec(String* command)
 
 // TODO: valutare se necessari qst file di configurazione di appoggio
 #define DUM_FILESTORAGEPARAMETRI				"/evoplus/storageConfiguration.txt"
-//#define SIMUL_FILESTORAGEPARAMETRIRETE			"/var/tmp/dboxInfo.txt"
 //TODO correggere define
 #define SIMUL_SENDDATATICS						"to_cs_usb.sh"							// Script per l'invio dati su CS. gli script sono relativi e si trovano in /evolpus/scripts 
 #define SIMUL_NOME_FILE_CS_TXT					"data_to_cs.txt"						// File che contiene i dati da inviare al CS
@@ -148,16 +146,6 @@ int DumMaster::exec(String* command)
 #define _DEB_1_PRINTLN(x)
 #endif
 
-//#define MysticDum_h_INOUT
-#ifdef MysticDum_h_INOUT
-#define M_CAFFE_INOUT_PRINT(x)   SerialUSB.print(x);
-#define M_CAFFE_INOUT_PRINTLN(x) SerialUSB.println(x);
-#else
-#define M_CAFFE_INOUT_PRINT(x)
-#define M_CAFFE_INOUT_PRINTLN(x)
-#endif
-
-
 
 
 class MysticDum : public Dum
@@ -185,8 +173,8 @@ public:
 	void sendDataToCs();								// prepara i dati e li invia al centro servizi
 
 	// Serve per la DConnect BOX, NON necessario se non ci sono altri dum collegati
-	// void riceviMessaggi();								// riceve i messaggi dal centro servizi li passa a processMessage
-	// String processMessage(String message);				// Risponde alle richieste base: inventory, setparam, se riguardano un altro dum smista la richiesta al dum corretto
+	void riceviMessaggi();								// riceve i messaggi dal centro servizi li passa a processMessage
+	String processMessage(String message);				// Risponde alle richieste base: inventory, setparam, se riguardano un altro dum smista la richiesta al dum corretto
 
 protected:
 	String _fileStorageParametri = DUM_FILESTORAGEPARAMETRI;

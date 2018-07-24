@@ -90,7 +90,6 @@ void MysticDum::begin() {
 
 //riceve e parsa dal centro servizi i comandi per poi fare le relative operazioni
 String MysticDum::processCommand(String message) {
-	M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.processCommnad()-------------    ");
 
 	/* Richiesta inviata dal centro servizi:
 
@@ -222,7 +221,6 @@ bool MysticDum::aggiornaStato() {
 	// lo scopo di questa funzione è leggere lo stato di tutti i sensori e metterli a disposizione
 	// legge posizione pwmcom es 	// temperatura, umidità, etc
 
-	M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.aggiornastato()   -------------    ");
 
 	Process p;
 	String supp, result, chiave, valore;
@@ -261,7 +259,6 @@ unsigned long int MysticDum::getSampleRate() {
 
 
 void MysticDum::sendDataToCs() {
-	M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.sendDataToCs() ---------------------");
 
 	String stringa, supp;
 	aggiornaStato();
@@ -288,14 +285,11 @@ void MysticDum::sendDataToCs() {
 			}
 			else break;
 		}
-		M_CAFFE_INOUT_PRINTLN("Uscita Macchinetta caffe.sendDataToCs()");
 	}
 };
 
 // riceviMessaggi e processMessage servono solo per la DConnectBox non per i dum
-#if 0
 void MysticDum::riceviMessaggi() {
-		M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.riceviMessaggi()  -----------------");
 		String message = "";
 		String risposta;
 			if (Mailbox.messageAvailable() > 0)
@@ -308,14 +302,12 @@ void MysticDum::riceviMessaggi() {
 				//M_CAFFE_INOUT_PRINT("Ottenuta Risposta da processMessagge: "); M_CAFFE_INOUT_PRINT(risposta); M_CAFFE_INOUT_PRINTLN("  ");
 
 				Mailbox.writeMessage(risposta);
-				M_CAFFE_INOUT_PRINTLN("Scrivo sulla mailBox  ");
 
 				//_DEB_PRINT("Ricevuto risposta: "); _DEB_PRINTLN(risposta);
 				// data_to_cs();
 				sendDataToCs();
 			}
 		
-		M_CAFFE_INOUT_PRINTLN("Uscita Macchinetta caffe.riceviMessaggi()");
 };
 
 
@@ -324,7 +316,6 @@ String MysticDum::processMessage(String message) {
 	String comm_param[2]{ "","" };
 	String risposta_2;
 	bool trovato;
-	M_CAFFE_INOUT_PRINT("Ingresso Macchinetta caffe.processMessage()  -----------------");
 	//_DEB_PRINT("Comando ricevuto dal lato linux (dentro process_message: "); _DEB_PRINTLN(message);
 
 	/* Formato richiesta da CS:
@@ -369,7 +360,6 @@ String MysticDum::processMessage(String message) {
 	return "no_risposta_2";
 
 }
-#endif
 
 
 

@@ -18,11 +18,6 @@
 #endif
 
 
-//#define DUM_TOTAL_N_OF_REG_OF_DUM 1         // definizione grandezza del buffer dove sono memomorizzati i dati
-//#define DUM_MAX_PARAMETERS_FROM_CS 10       // numero massimo di parametri che possono arrivare dal centro servizi
-//#define DUM_NOT_READ_VALUE   "null"         // valore non letto - Preset con un valore che non si leggera'  mai
-//#define DUM_NOT_VALID_VALUE "null"          // valore letto ma che non ha senso
-//#define DUM_STRING_NOT_VALID_VALUE "null"   // stringa che si invia nel caso il valore letto non sia valido
 //TODO: OTTIMIZZARE il separatore
 #define DUM_SEPARATORE "/"                  // definizione separatore fra parametri in arrivo e mandati verso il centro servizi
 //TODO: controllare dove già definito il percorso ad es nell' header del dum stesso, definire una sola volta
@@ -59,27 +54,26 @@ class Dum {
 	#if 0
 	void catgrepString(String cat ,String grep, String &output)
 {
-                /*
-                La funzione fa il cat ed il grep, esegue lo script seguente:
+ /*
+ La funzione fa il cat ed il grep, esegue lo script seguente:
 
-                # file di catgrep.sh abinato a questa funzione. Si trova in /evplus/
-                #!/bin/ash
+  # file di catgrep.sh abinato a questa funzione. Si trova in /evplus/
+  #!/bin/ash
 
-                if [ -n "$2" ]
-                # Verifica se Ã¨ presente un'opzione da riga di comando (non-vuota).
-                then
-                  cat $1 | grep $2
-                else
-                  cat $1
-                fi
+   if [ -n "$2" ]
+   # Verifica se Ã¨ presente un'opzione da riga di comando (non-vuota).
+   then
+   cat $1 | grep $2
+   else
+   cat $1
+   fi
 
+  Si deve usare questo script perchè non funziona con p.run la redirezione dell'output, quindi | > >> etc...
+ */
 
-                Si deve usare questo script perchè non funziona con p.run la redirezione dell'output, quindi | > >> etc...
-                */
-
-                output = "";
-                int c;
-                Process p;
+	output = "";
+    int c;
+    Process p;
     p.begin("catgrep.sh");
     p.addParameter(cat);
     p.addParameter(grep);
@@ -87,15 +81,15 @@ class Dum {
     delay(100);
 
     while (p.available() > 0) {
-                     c = p.read();
-                     if (c!=-1)
-                                output += (char)c;
+    	c = p.read();
+        if (c!=-1)
+        	output += (char)c;
         delay(100);
     }
 
     p.close();
 
-                output = output.substring(output.indexOf('\"') + 1, output.lastIndexOf('\"'));
+    output = output.substring(output.indexOf('\"') + 1, output.lastIndexOf('\"'));
 }
 
 void catgrepInt(String cat ,String grep, String &output)
